@@ -1,0 +1,22 @@
+{
+  "python_version": "match the Pyodide release's Python version; record it here when chosen",
+  "preferred": {
+    "env_and_packages": "uv",
+    "http_client": "httpx",
+    "validation": "pydantic v2",
+    "orm": "SQLAlchemy 2.0 style (select(), Mapped[], mapped_column)",
+    "migrations": "alembic",
+    "jwt": "PyJWT",
+    "password_hashing": "pwdlib with argon2",
+    "settings": "pydantic-settings",
+    "lint_and_types": "ruff, mypy",
+    "tests": "pytest"
+  },
+  "banned": [
+    { "pattern": "from jose", "reason": "python-jose is unmaintained; use PyJWT" },
+    { "pattern": "passlib", "reason": "use pwdlib" },
+    { "pattern": "session.query(", "reason": "SQLAlchemy 1.x style; use select()" },
+    { "pattern": "from pydantic import validator", "reason": "Pydantic v1 API; use field_validator" },
+    { "pattern": "orm_mode", "reason": "Pydantic v1 config; use from_attributes" }
+  ]
+}

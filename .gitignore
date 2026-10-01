@@ -1,0 +1,8 @@
+node_modules/
+dist/
+reference/*
+!reference/README.md
+.env
+test-results/
+playwright-report/
+.cache/

@@ -1,0 +1,44 @@
+/* backpy design tokens.
+   Palette: deep blue-slate study room, lit by the two colors of the Python mark.
+   Yellow means progress and the main action; blue means links and secondary actions. */
+:root {
+  --ink: #16202e;          /* page background */
+  --panel: #1c2838;        /* raised surfaces, hover rows */
+  --panel-strong: #23324a; /* editor chrome, active rows */
+  --rule: #31425c;         /* borders, the route line */
+  --text: #e8ecf2;
+  --text-muted: #a3b0c3;   /* 7.4:1 on --ink */
+  --text-faint: #8090a8;   /* 5.0:1 on --ink — numbers, meta only */
+  --py-yellow: #f4c542;
+  --py-yellow-dim: #8a7232;
+  --py-blue: #82b4e6;
+  --ok: #63cf92;
+  --err: #f27f82;
+  --on-yellow: #1a1606;
+
+  --font-ui: 'Schibsted Grotesk Variable', system-ui, sans-serif;
+  --font-read: 'Source Serif 4 Variable', Georgia, serif;
+  --font-code: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Type scale: 16px base, ratio ~1.25 with a jump for display sizes */
+  --step--1: 0.8125rem; /* 13 */
+  --step-0: 1rem;       /* 16 */
+  --step-1: 1.125rem;   /* 18 */
+  --step-2: 1.375rem;   /* 22 */
+  --step-3: 1.75rem;    /* 28 */
+  --step-4: 2.375rem;   /* 38 */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --focus: 0 0 0 3px var(--ink), 0 0 0 5px var(--py-yellow);
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

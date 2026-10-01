@@ -1,0 +1,1292 @@
+{
+  "name": "backpy",
+  "version": 2,
+  "lesson_count": 124,
+  "source_keys": {
+    "BOS": "The Backend OS, day number",
+    "UD": "Eric Roby, FastAPI - The Complete Course 2026, section",
+    "BD": "Boot.dev Backend Developer Path, course number"
+  },
+  "coverage_key": {
+    "sources": "covered by the listed sources",
+    "partial": "sources cover part; Claude fills the rest",
+    "claude": "written from scratch by Claude"
+  },
+  "changes_from_v1": [
+    "Added AI Integration (5 lessons): LLM APIs, structured outputs, streaming, RAG with pgvector, evals.",
+    "Added Integrations (3): Stripe webhooks, third-party APIs/OAuth, data jobs with CSV and pandas.",
+    "Added AWS Fundamentals (2) and Django for FastAPI Developers (2).",
+    "Added code-quality tooling, OpenTelemetry tracing, an API-styles overview, a Kubernetes overview (optional), testing with a real test database, and reviewing AI-generated code.",
+    "Moved Testing and the AI agent workflow into Tier 2 so tests and lint start with your first FastAPI app.",
+    "Compressed: Orientation 6→4, functional programming merged into functions, pub/sub merged into task queues, CDNs merged into uploads, System Design 5→3, DSA 5→4, Communication 4→3, resume and LinkedIn merged.",
+    "Open-source contribution is now optional. The capstone now requires an LLM feature, a webhook, and a background job.",
+    "Modernized: httpx for HTTP clients, PyJWT and pwdlib/Argon2 for auth, CI runs lint and type-checks."
+  ],
+  "tiers": [
+    {
+      "tier": "Tier 1: Foundations",
+      "sections": [
+        {
+          "section": "Orientation",
+          "lessons": [
+            {
+              "title": "Why backend, and what backend engineers actually do",
+              "sources": [
+                "BOS 0",
+                "BOS 1"
+              ],
+              "optional": false,
+              "id": 1,
+              "coverage": "sources"
+            },
+            {
+              "title": "How the internet works: DNS, TCP/IP, TLS, the request journey",
+              "sources": [
+                "BOS 2"
+              ],
+              "optional": false,
+              "id": 2,
+              "coverage": "sources"
+            },
+            {
+              "title": "The pieces: servers, databases, and APIs",
+              "sources": [
+                "BOS 3",
+                "BOS 4",
+                "BOS 5"
+              ],
+              "optional": false,
+              "id": 3,
+              "coverage": "sources"
+            },
+            {
+              "title": "Tracing one request end to end",
+              "sources": [
+                "BOS 6",
+                "BOS 7"
+              ],
+              "optional": false,
+              "id": 4,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "Draw the path of one PokeTeam request from the browser to Postgres and back, and explain each hop out loud."
+        },
+        {
+          "section": "Terminal & Linux",
+          "lessons": [
+            {
+              "title": "Shell basics: navigating, files, permissions",
+              "sources": [
+                "BD 2"
+              ],
+              "optional": false,
+              "id": 5,
+              "coverage": "sources"
+            },
+            {
+              "title": "Processes, ports, environment variables, pipes",
+              "sources": [
+                "BD 2"
+              ],
+              "optional": false,
+              "id": 6,
+              "coverage": "partial"
+            },
+            {
+              "title": "Python environments: venv, pip, pyproject, uv",
+              "sources": [
+                "UD FastAPI Setup"
+              ],
+              "optional": false,
+              "id": 7,
+              "coverage": "partial"
+            }
+          ],
+          "checkpoint": "Create a new Python project from an empty folder using only the terminal and uv."
+        },
+        {
+          "section": "Git & GitHub",
+          "lessons": [
+            {
+              "title": "Commits, staging, and history",
+              "sources": [
+                "BD 4",
+                "UD Git",
+                "BOS 22"
+              ],
+              "optional": false,
+              "id": 8,
+              "coverage": "sources"
+            },
+            {
+              "title": "Branches, merging, and resolving conflicts",
+              "sources": [
+                "BD 4",
+                "UD Git",
+                "BOS 22"
+              ],
+              "optional": false,
+              "id": 9,
+              "coverage": "sources"
+            },
+            {
+              "title": "Remotes and GitHub: push, pull, clone",
+              "sources": [
+                "UD Git"
+              ],
+              "optional": false,
+              "id": 10,
+              "coverage": "sources"
+            },
+            {
+              "title": "Pull requests, issues, and team workflows",
+              "sources": [
+                "BOS 23"
+              ],
+              "optional": false,
+              "id": 11,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "PokeTeam is on GitHub and every change arrives through a branch and a pull request."
+        },
+        {
+          "section": "Python",
+          "lessons": [
+            {
+              "title": "Core types, collections, and control flow (test-out available)",
+              "sources": [
+                "BD 1",
+                "UD Python Refresher",
+                "BOS 8"
+              ],
+              "optional": false,
+              "id": 12,
+              "coverage": "sources"
+            },
+            {
+              "title": "Functions: arguments, scope, closures, lambdas, comprehensions, functools",
+              "sources": [
+                "BD 1",
+                "BD 7"
+              ],
+              "optional": false,
+              "id": 13,
+              "coverage": "sources"
+            },
+            {
+              "title": "Errors: try/except/else/finally and custom exceptions",
+              "sources": [
+                "BOS 9"
+              ],
+              "optional": false,
+              "id": 14,
+              "coverage": "sources"
+            },
+            {
+              "title": "OOP: classes, inheritance, super(), composition",
+              "sources": [
+                "BD 5",
+                "UD Python Refresher"
+              ],
+              "optional": false,
+              "id": 15,
+              "coverage": "sources"
+            },
+            {
+              "title": "Iterators, generators, and yield",
+              "sources": [
+                "BD 7"
+              ],
+              "optional": false,
+              "id": 16,
+              "coverage": "partial"
+            },
+            {
+              "title": "Decorators and context managers",
+              "sources": [
+                "BOS 9"
+              ],
+              "optional": false,
+              "id": 17,
+              "coverage": "partial"
+            },
+            {
+              "title": "Type hints, modules, and packages",
+              "sources": [
+                "BOS 9",
+                "UD Python Refresher"
+              ],
+              "optional": false,
+              "id": 18,
+              "coverage": "sources"
+            },
+            {
+              "title": "JSON and HTTP clients with httpx",
+              "sources": [
+                "BOS 10",
+                "BD 14"
+              ],
+              "optional": false,
+              "id": 19,
+              "coverage": "partial"
+            },
+            {
+              "title": "Project: a script that fetches, processes, and saves data",
+              "sources": [
+                "BOS 11",
+                "BD 3",
+                "BD 15"
+              ],
+              "optional": false,
+              "id": 20,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "A script pulls data from PokéAPI with httpx, handles network errors, and writes clean results to a file."
+        },
+        {
+          "section": "SQL & PostgreSQL",
+          "lessons": [
+            {
+              "title": "SQL fundamentals: SELECT, INSERT, UPDATE, DELETE, WHERE",
+              "sources": [
+                "BOS 12",
+                "BD 16"
+              ],
+              "optional": false,
+              "id": 21,
+              "coverage": "sources"
+            },
+            {
+              "title": "Schema design: keys, constraints, normalization",
+              "sources": [
+                "BD 16",
+                "UD Setup Database"
+              ],
+              "optional": false,
+              "id": 22,
+              "coverage": "partial"
+            },
+            {
+              "title": "JOINs, aggregations, and subqueries",
+              "sources": [
+                "BOS 13",
+                "BD 16"
+              ],
+              "optional": false,
+              "id": 23,
+              "coverage": "sources"
+            },
+            {
+              "title": "Relationships: one-to-many and many-to-many",
+              "sources": [
+                "UD Authentication & Authorization",
+                "BD 16"
+              ],
+              "optional": false,
+              "id": 24,
+              "coverage": "sources"
+            },
+            {
+              "title": "PostgreSQL setup and psql",
+              "sources": [
+                "UD Large Production Database Setup"
+              ],
+              "optional": false,
+              "id": 25,
+              "coverage": "sources"
+            },
+            {
+              "title": "Connecting Python to a database",
+              "sources": [
+                "BOS 14"
+              ],
+              "optional": false,
+              "id": 26,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "PokeTeam's schema exists in Postgres and you can answer 10 real questions in SQL (e.g. most-picked Pokémon across all teams)."
+        }
+      ]
+    },
+    {
+      "tier": "Tier 2: Core Backend",
+      "sections": [
+        {
+          "section": "HTTP & API Design",
+          "lessons": [
+            {
+              "title": "HTTP in depth: methods, headers, status codes, cookies",
+              "sources": [
+                "BD 14",
+                "BD 18",
+                "BOS 5"
+              ],
+              "optional": false,
+              "id": 27,
+              "coverage": "sources"
+            },
+            {
+              "title": "REST resource design and API contracts",
+              "sources": [
+                "BOS 46"
+              ],
+              "optional": false,
+              "id": 28,
+              "coverage": "partial"
+            },
+            {
+              "title": "Pagination, filtering, sorting, and versioning",
+              "sources": [],
+              "optional": false,
+              "id": 29,
+              "coverage": "claude"
+            },
+            {
+              "title": "Idempotency and safe retries",
+              "sources": [],
+              "optional": false,
+              "id": 30,
+              "coverage": "claude"
+            },
+            {
+              "title": "API styles overview: REST, GraphQL, gRPC, WebSockets, SSE",
+              "sources": [],
+              "optional": false,
+              "id": 31,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "A written API contract for PokeTeam: every endpoint, its inputs, outputs, and every failure status code."
+        },
+        {
+          "section": "FastAPI Core",
+          "lessons": [
+            {
+              "title": "Your first FastAPI app",
+              "sources": [
+                "BOS 15",
+                "UD FastAPI Overview"
+              ],
+              "optional": false,
+              "id": 32,
+              "coverage": "sources"
+            },
+            {
+              "title": "Path parameters, query parameters, request bodies",
+              "sources": [
+                "BOS 16",
+                "UD Project 1"
+              ],
+              "optional": false,
+              "id": 33,
+              "coverage": "sources"
+            },
+            {
+              "title": "Pydantic v2 models and validation",
+              "sources": [
+                "BOS 17",
+                "UD Project 2"
+              ],
+              "optional": false,
+              "id": 34,
+              "coverage": "sources"
+            },
+            {
+              "title": "Status codes, HTTPException, and error responses",
+              "sources": [
+                "BOS 17",
+                "UD Project 2"
+              ],
+              "optional": false,
+              "id": 35,
+              "coverage": "sources"
+            },
+            {
+              "title": "Response models: controlling what leaves your API",
+              "sources": [
+                "UD Project 2"
+              ],
+              "optional": false,
+              "id": 36,
+              "coverage": "partial"
+            },
+            {
+              "title": "Dependency injection: Depends, Annotated, yield dependencies",
+              "sources": [],
+              "optional": false,
+              "id": 37,
+              "coverage": "claude"
+            },
+            {
+              "title": "Routers and layered structure: routes, services, models",
+              "sources": [
+                "UD Authentication & Authorization"
+              ],
+              "optional": false,
+              "id": 38,
+              "coverage": "partial"
+            },
+            {
+              "title": "Configuration: environment variables and pydantic-settings",
+              "sources": [
+                "BOS 20"
+              ],
+              "optional": false,
+              "id": 39,
+              "coverage": "partial"
+            }
+          ],
+          "checkpoint": "PokeTeam's in-memory API implements the full contract with validation and correct status codes."
+        },
+        {
+          "section": "Testing",
+          "lessons": [
+            {
+              "title": "Why test, and what's worth testing",
+              "sources": [
+                "BOS 24",
+                "UD Project 4"
+              ],
+              "optional": false,
+              "id": 40,
+              "coverage": "sources"
+            },
+            {
+              "title": "pytest: asserts, fixtures, parametrize",
+              "sources": [
+                "UD Project 4"
+              ],
+              "optional": false,
+              "id": 41,
+              "coverage": "sources"
+            },
+            {
+              "title": "Testing FastAPI: TestClient and dependency_overrides",
+              "sources": [
+                "UD Project 4"
+              ],
+              "optional": false,
+              "id": 42,
+              "coverage": "sources"
+            },
+            {
+              "title": "Test-driven thinking: edge cases and failure paths",
+              "sources": [
+                "BOS 25"
+              ],
+              "optional": false,
+              "id": 43,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "Every PokeTeam endpoint has a failure-path test. From here on, every section's checkpoint includes tests."
+        },
+        {
+          "section": "Professional Workflow",
+          "lessons": [
+            {
+              "title": "Code quality tooling: ruff, mypy, pre-commit",
+              "sources": [],
+              "optional": false,
+              "id": 44,
+              "coverage": "claude"
+            },
+            {
+              "title": "How LLMs and coding agents work, and where they fail",
+              "sources": [
+                "BD 8"
+              ],
+              "optional": false,
+              "id": 45,
+              "coverage": "partial"
+            },
+            {
+              "title": "The agent loop: context, spec, plan, tests, review",
+              "sources": [],
+              "optional": false,
+              "id": 46,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "ruff and mypy run on every commit, and one small PokeTeam change is built with an agent from a written spec, tests first."
+        },
+        {
+          "section": "Data Layer",
+          "lessons": [
+            {
+              "title": "SQLAlchemy 2.0: engine, sessions, models",
+              "sources": [
+                "UD Setup Database",
+                "BOS 14"
+              ],
+              "optional": false,
+              "id": 47,
+              "coverage": "sources"
+            },
+            {
+              "title": "CRUD against a real database",
+              "sources": [
+                "UD API Request Methods",
+                "BOS 18"
+              ],
+              "optional": false,
+              "id": 48,
+              "coverage": "sources"
+            },
+            {
+              "title": "ORM relationships and the N+1 query problem",
+              "sources": [
+                "UD Authentication & Authorization"
+              ],
+              "optional": false,
+              "id": 49,
+              "coverage": "partial"
+            },
+            {
+              "title": "Alembic migrations: revisions, upgrade, downgrade",
+              "sources": [
+                "UD Project 3.5 Alembic",
+                "BOS 33"
+              ],
+              "optional": false,
+              "id": 50,
+              "coverage": "sources"
+            },
+            {
+              "title": "Transactions and data integrity",
+              "sources": [],
+              "optional": false,
+              "id": 51,
+              "coverage": "claude"
+            },
+            {
+              "title": "Testing with a real test database",
+              "sources": [
+                "UD Project 4"
+              ],
+              "optional": false,
+              "id": 52,
+              "coverage": "partial"
+            }
+          ],
+          "checkpoint": "PokeTeam persists to Postgres, the schema only changes through Alembic, and tests run against an isolated test database."
+        },
+        {
+          "section": "Authentication & Authorization",
+          "lessons": [
+            {
+              "title": "Auth concepts: sessions, API keys, tokens",
+              "sources": [
+                "BOS 19"
+              ],
+              "optional": false,
+              "id": 53,
+              "coverage": "sources"
+            },
+            {
+              "title": "Password hashing with pwdlib/Argon2",
+              "sources": [
+                "UD Authentication & Authorization"
+              ],
+              "optional": false,
+              "id": 54,
+              "coverage": "partial"
+            },
+            {
+              "title": "JWT with PyJWT: encoding, decoding, expiry",
+              "sources": [
+                "UD Authentication & Authorization"
+              ],
+              "optional": false,
+              "id": 55,
+              "coverage": "sources"
+            },
+            {
+              "title": "Protecting routes with a current-user dependency",
+              "sources": [
+                "UD Authenticate Requests"
+              ],
+              "optional": false,
+              "id": 56,
+              "coverage": "sources"
+            },
+            {
+              "title": "Authorization: ownership checks and admin roles",
+              "sources": [
+                "UD Authenticate Requests"
+              ],
+              "optional": false,
+              "id": 57,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "Tests prove a user cannot read, edit, or delete another user's teams."
+        },
+        {
+          "section": "Just Enough React",
+          "lessons": [
+            {
+              "title": "How frontends talk to APIs: fetch, JSON, CORS",
+              "sources": [
+                "BOS 46"
+              ],
+              "optional": false,
+              "id": 58,
+              "coverage": "partial"
+            },
+            {
+              "title": "React basics: components, state, effects",
+              "sources": [],
+              "optional": false,
+              "id": 59,
+              "coverage": "claude"
+            },
+            {
+              "title": "Calling your API: loading, errors, and tokens in the browser",
+              "sources": [],
+              "optional": false,
+              "id": 60,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "A React page that logs in and lists your PokeTeam teams."
+        },
+        {
+          "section": "Project 1",
+          "lessons": [
+            {
+              "title": "Project 1: build a complete API",
+              "sources": [
+                "BOS 21"
+              ],
+              "optional": false,
+              "id": 61,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "PokeTeam covers everything in Tiers 1-2 so far and runs locally with passing tests and clean lint."
+        },
+        {
+          "section": "AI Integration",
+          "lessons": [
+            {
+              "title": "Calling LLM APIs from FastAPI: timeouts, retries, cost limits",
+              "sources": [],
+              "optional": false,
+              "id": 62,
+              "coverage": "claude"
+            },
+            {
+              "title": "Structured outputs with Pydantic",
+              "sources": [],
+              "optional": false,
+              "id": 63,
+              "coverage": "claude"
+            },
+            {
+              "title": "Streaming responses with server-sent events",
+              "sources": [],
+              "optional": false,
+              "id": 64,
+              "coverage": "claude"
+            },
+            {
+              "title": "Embeddings, pgvector, and a RAG endpoint",
+              "sources": [],
+              "optional": false,
+              "id": 65,
+              "coverage": "claude"
+            },
+            {
+              "title": "Testing and evaluating LLM features",
+              "sources": [],
+              "optional": false,
+              "id": 66,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "PokeTeam has an AI team advisor: structured output, streaming, cost limits, and tests that don't call the real API."
+        }
+      ]
+    },
+    {
+      "tier": "Tier 3: Production",
+      "sections": [
+        {
+          "section": "Docker",
+          "lessons": [
+            {
+              "title": "Containers: what they are and why they exist",
+              "sources": [
+                "BOS 26",
+                "BD 20"
+              ],
+              "optional": false,
+              "id": 67,
+              "coverage": "sources"
+            },
+            {
+              "title": "Writing a Dockerfile for FastAPI",
+              "sources": [
+                "BOS 27",
+                "BD 20"
+              ],
+              "optional": false,
+              "id": 68,
+              "coverage": "sources"
+            },
+            {
+              "title": "Docker Compose: API + Postgres + Redis",
+              "sources": [],
+              "optional": false,
+              "id": 69,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "`docker compose up` starts the whole PokeTeam stack from a fresh clone."
+        },
+        {
+          "section": "Deployment & CI/CD",
+          "lessons": [
+            {
+              "title": "Cloud basics: compute, databases, storage",
+              "sources": [
+                "BOS 28"
+              ],
+              "optional": false,
+              "id": 70,
+              "coverage": "sources"
+            },
+            {
+              "title": "Deploying to Render or Railway with a production database",
+              "sources": [
+                "BOS 29",
+                "UD Deploying FastAPI Applications"
+              ],
+              "optional": false,
+              "id": 71,
+              "coverage": "sources"
+            },
+            {
+              "title": "Environments: dev, staging, production",
+              "sources": [
+                "BOS 30"
+              ],
+              "optional": false,
+              "id": 72,
+              "coverage": "sources"
+            },
+            {
+              "title": "CI with GitHub Actions: lint, type-check, and test on every push",
+              "sources": [],
+              "optional": false,
+              "id": 73,
+              "coverage": "claude"
+            },
+            {
+              "title": "CD: deploy automatically when tests pass",
+              "sources": [],
+              "optional": false,
+              "id": 74,
+              "coverage": "claude"
+            },
+            {
+              "title": "Kubernetes concepts (overview only)",
+              "sources": [],
+              "optional": true,
+              "id": 75,
+              "coverage": "claude"
+            },
+            {
+              "title": "Project 2: deploy your API",
+              "sources": [
+                "BOS 34",
+                "BOS 35"
+              ],
+              "optional": false,
+              "id": 76,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "A green CI badge in the README and a live PokeTeam URL that redeploys on merge."
+        },
+        {
+          "section": "AWS Fundamentals",
+          "lessons": [
+            {
+              "title": "IAM, S3, and how AWS accounts work",
+              "sources": [],
+              "optional": false,
+              "id": 77,
+              "coverage": "claude"
+            },
+            {
+              "title": "RDS and running containers on AWS (App Runner/ECS or Lambda)",
+              "sources": [],
+              "optional": false,
+              "id": 78,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "PokeTeam's file storage uses S3 through a least-privilege IAM user, and you can explain how you'd move the whole app to AWS."
+        },
+        {
+          "section": "Integrations",
+          "lessons": [
+            {
+              "title": "Webhooks: Stripe, signature verification, idempotent handlers",
+              "sources": [],
+              "optional": false,
+              "id": 79,
+              "coverage": "claude"
+            },
+            {
+              "title": "Third-party APIs and OAuth",
+              "sources": [],
+              "optional": false,
+              "id": 80,
+              "coverage": "claude"
+            },
+            {
+              "title": "Data jobs: CSV validation, pandas basics, and extraction",
+              "sources": [],
+              "optional": false,
+              "id": 81,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "A Stripe test-mode webhook that survives duplicate deliveries, and a CSV import endpoint that rejects bad rows with clear errors."
+        },
+        {
+          "section": "Security",
+          "lessons": [
+            {
+              "title": "Web security fundamentals and the OWASP API Top 10",
+              "sources": [
+                "BD 21"
+              ],
+              "optional": false,
+              "id": 82,
+              "coverage": "partial"
+            },
+            {
+              "title": "Injection, CSRF, XSS, and CORS done right",
+              "sources": [
+                "BD 21"
+              ],
+              "optional": false,
+              "id": 83,
+              "coverage": "partial"
+            },
+            {
+              "title": "Secrets management and dependency risk",
+              "sources": [
+                "BOS 20"
+              ],
+              "optional": false,
+              "id": 84,
+              "coverage": "partial"
+            },
+            {
+              "title": "Rate limiting and brute-force protection",
+              "sources": [],
+              "optional": false,
+              "id": 85,
+              "coverage": "claude"
+            },
+            {
+              "title": "Token lifecycle: refresh tokens, revocation, secure cookies",
+              "sources": [],
+              "optional": false,
+              "id": 86,
+              "coverage": "claude"
+            },
+            {
+              "title": "Reviewing AI-generated code: the security checklist",
+              "sources": [],
+              "optional": false,
+              "id": 87,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "PokeTeam passes a written security review, login is rate-limited, and you've audited one AI-generated feature with the checklist."
+        },
+        {
+          "section": "Async, Performance & Caching",
+          "lessons": [
+            {
+              "title": "Concurrency in Python: threads, processes, async",
+              "sources": [],
+              "optional": false,
+              "id": 88,
+              "coverage": "claude"
+            },
+            {
+              "title": "async/await in FastAPI: the event loop and blocking traps",
+              "sources": [],
+              "optional": false,
+              "id": 89,
+              "coverage": "claude"
+            },
+            {
+              "title": "Async database access",
+              "sources": [],
+              "optional": false,
+              "id": 90,
+              "coverage": "claude"
+            },
+            {
+              "title": "Caching with Redis: when it helps and when it hurts",
+              "sources": [],
+              "optional": false,
+              "id": 91,
+              "coverage": "claude"
+            },
+            {
+              "title": "Background jobs and task queues: Celery/arq, plus pub/sub concepts",
+              "sources": [
+                "BD 22"
+              ],
+              "optional": false,
+              "id": 92,
+              "coverage": "partial"
+            },
+            {
+              "title": "File uploads, S3 presigned URLs, and CDNs",
+              "sources": [
+                "BD 19"
+              ],
+              "optional": false,
+              "id": 93,
+              "coverage": "partial"
+            },
+            {
+              "title": "Query optimization: indexes and EXPLAIN",
+              "sources": [
+                "BOS 13"
+              ],
+              "optional": false,
+              "id": 94,
+              "coverage": "partial"
+            }
+          ],
+          "checkpoint": "PokéAPI calls are cached in Redis, one job runs on a task queue, and the README shows measured before/after latency."
+        },
+        {
+          "section": "Observability & Reliability",
+          "lessons": [
+            {
+              "title": "Logging: what, how, and where",
+              "sources": [
+                "BOS 31"
+              ],
+              "optional": false,
+              "id": 95,
+              "coverage": "sources"
+            },
+            {
+              "title": "Structured logs and request IDs",
+              "sources": [],
+              "optional": false,
+              "id": 96,
+              "coverage": "claude"
+            },
+            {
+              "title": "Tracing with OpenTelemetry",
+              "sources": [],
+              "optional": false,
+              "id": 97,
+              "coverage": "claude"
+            },
+            {
+              "title": "Error-handling architecture: custom exceptions and global handlers",
+              "sources": [],
+              "optional": false,
+              "id": 98,
+              "coverage": "claude"
+            },
+            {
+              "title": "Health checks, timeouts, and retries",
+              "sources": [],
+              "optional": false,
+              "id": 99,
+              "coverage": "claude"
+            },
+            {
+              "title": "Debugging in production",
+              "sources": [
+                "BOS 32"
+              ],
+              "optional": false,
+              "id": 100,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "You can find one deliberately broken request by its request ID, follow its trace, and explain the root cause."
+        }
+      ]
+    },
+    {
+      "tier": "Tier 4: Professional",
+      "sections": [
+        {
+          "section": "Working in Real Codebases",
+          "lessons": [
+            {
+              "title": "Reading other people's code",
+              "sources": [
+                "BOS 36"
+              ],
+              "optional": false,
+              "id": 101,
+              "coverage": "sources"
+            },
+            {
+              "title": "Debugging code you didn't write",
+              "sources": [
+                "BOS 48"
+              ],
+              "optional": false,
+              "id": 102,
+              "coverage": "sources"
+            },
+            {
+              "title": "The art of the pull request",
+              "sources": [
+                "BOS 37"
+              ],
+              "optional": false,
+              "id": 103,
+              "coverage": "sources"
+            },
+            {
+              "title": "Receiving and giving code review",
+              "sources": [
+                "BOS 38",
+                "BOS 39"
+              ],
+              "optional": false,
+              "id": 104,
+              "coverage": "sources"
+            },
+            {
+              "title": "Project 3: open source contribution",
+              "sources": [
+                "BOS 49"
+              ],
+              "optional": true,
+              "id": 105,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "You've reviewed someone else's pull request in writing, and fixed a bug in a codebase you didn't write."
+        },
+        {
+          "section": "Engineering Communication",
+          "lessons": [
+            {
+              "title": "Requirements: the questions that matter, working with frontend and product",
+              "sources": [
+                "BOS 41",
+                "BOS 42",
+                "BOS 46",
+                "BOS 47"
+              ],
+              "optional": false,
+              "id": 106,
+              "coverage": "sources"
+            },
+            {
+              "title": "Breaking down and estimating work",
+              "sources": [
+                "BOS 43",
+                "BOS 44"
+              ],
+              "optional": false,
+              "id": 107,
+              "coverage": "sources"
+            },
+            {
+              "title": "Documentation, technical writing, and decision records",
+              "sources": [
+                "BOS 40",
+                "BOS 45"
+              ],
+              "optional": false,
+              "id": 108,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "A PokeTeam README that explains why, one decision record, and a ticket breakdown for the next feature."
+        },
+        {
+          "section": "System Design",
+          "lessons": [
+            {
+              "title": "Thinking in tradeoffs",
+              "sources": [],
+              "optional": false,
+              "id": 109,
+              "coverage": "claude"
+            },
+            {
+              "title": "Scaling overview: statelessness, load balancers, caching layers, replicas",
+              "sources": [],
+              "optional": false,
+              "id": 110,
+              "coverage": "claude"
+            },
+            {
+              "title": "System design interview basics",
+              "sources": [
+                "BOS 57"
+              ],
+              "optional": false,
+              "id": 111,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "An architecture diagram of PokeTeam and a written answer to 'what breaks first at 100x traffic, and what would you change?'"
+        },
+        {
+          "section": "Django for FastAPI Developers",
+          "lessons": [
+            {
+              "title": "Django: ORM, admin, and project structure",
+              "sources": [],
+              "optional": false,
+              "id": 112,
+              "coverage": "claude"
+            },
+            {
+              "title": "Django REST Framework basics",
+              "sources": [],
+              "optional": false,
+              "id": 113,
+              "coverage": "claude"
+            }
+          ],
+          "checkpoint": "One PokeTeam endpoint rebuilt in Django REST Framework, with a short note comparing it to the FastAPI version."
+        },
+        {
+          "section": "DSA & Coding Interviews",
+          "lessons": [
+            {
+              "title": "Big-O and core data structures: arrays, hash maps, strings",
+              "sources": [
+                "BD 9"
+              ],
+              "optional": false,
+              "id": 114,
+              "coverage": "sources"
+            },
+            {
+              "title": "Problem patterns: two pointers, sliding window, stacks and queues",
+              "sources": [
+                "BD 9",
+                "BOS 56"
+              ],
+              "optional": false,
+              "id": 115,
+              "coverage": "sources"
+            },
+            {
+              "title": "Trees, graphs, and BFS/DFS",
+              "sources": [
+                "BD 9"
+              ],
+              "optional": false,
+              "id": 116,
+              "coverage": "sources"
+            },
+            {
+              "title": "The interview landscape: with AI and without",
+              "sources": [
+                "BOS 55"
+              ],
+              "optional": false,
+              "id": 117,
+              "coverage": "partial"
+            }
+          ],
+          "checkpoint": "15 easy/medium problems solved without AI, explained out loud, plus one timed AI-allowed exercise on a multi-file codebase."
+        },
+        {
+          "section": "Getting Hired",
+          "lessons": [
+            {
+              "title": "Building your portfolio",
+              "sources": [
+                "BOS 50"
+              ],
+              "optional": false,
+              "id": 118,
+              "coverage": "sources"
+            },
+            {
+              "title": "Resume, LinkedIn, and online presence",
+              "sources": [
+                "BOS 51",
+                "BOS 52"
+              ],
+              "optional": false,
+              "id": 119,
+              "coverage": "sources"
+            },
+            {
+              "title": "Finding jobs and reading job descriptions",
+              "sources": [
+                "BOS 53",
+                "BOS 54",
+                "BD 24"
+              ],
+              "optional": false,
+              "id": 120,
+              "coverage": "sources"
+            },
+            {
+              "title": "Freelancing: positioning, proposals, and first contracts",
+              "sources": [],
+              "optional": false,
+              "id": 121,
+              "coverage": "claude"
+            },
+            {
+              "title": "Behavioral interviews",
+              "sources": [
+                "BOS 58"
+              ],
+              "optional": false,
+              "id": 122,
+              "coverage": "sources"
+            },
+            {
+              "title": "Your first 90 days",
+              "sources": [
+                "BOS 59"
+              ],
+              "optional": false,
+              "id": 123,
+              "coverage": "sources"
+            },
+            {
+              "title": "Capstone: a production-grade API",
+              "sources": [
+                "BD 23",
+                "BOS 60"
+              ],
+              "optional": false,
+              "id": 124,
+              "coverage": "sources"
+            }
+          ],
+          "checkpoint": "Capstone: PokeTeam is deployed, tested, observable, and has an LLM feature, a webhook, and a background job. Resume, LinkedIn, and freelance profile all point to it."
+        }
+      ]
+    }
+  ]
+}
