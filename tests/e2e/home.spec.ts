@@ -40,6 +40,20 @@ test('a lesson row opens that lesson', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson15.title)
 })
 
+test('opening a lesson from far down the map starts at the top, and Back returns to the same spot', async ({ page }) => {
+  await page.goto('/')
+  const row = page.locator('[data-lesson-id="100"]')
+  await row.scrollIntoViewIfNeeded()
+  const homeScroll = await page.evaluate(() => window.scrollY)
+  expect(homeScroll).toBeGreaterThan(1000)
+  await row.click()
+  await expect(page).toHaveURL(/#\/lesson\/100$/)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  await page.goBack()
+  await expect(row).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(homeScroll - 50)
+})
+
 test('the map fits a phone screen without sideways scrolling', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')

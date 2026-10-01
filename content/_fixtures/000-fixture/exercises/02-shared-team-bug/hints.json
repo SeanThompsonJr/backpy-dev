@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Look at when the default value comes into existence. Is it built once or on every call?",
+    "The likely mistake is assuming team=[] means \"a new empty list each time\". You need a default that can't be changed, and a fresh list built inside the function."
+  ],
+  "solution_explanation": "None is immutable and means \"not passed\". Checking for it inside the function means a new list is created on every call that needs one, while a team passed by the caller is still used as-is."
+}

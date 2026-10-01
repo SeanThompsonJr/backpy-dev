@@ -1,0 +1,1 @@
+{ "type": "sql", "title": "Find the most-picked Pokémon", "runtime": "pglite", "timeout_seconds": 5 }

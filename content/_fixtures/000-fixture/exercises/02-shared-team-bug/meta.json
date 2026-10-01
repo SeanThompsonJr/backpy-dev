@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "Fix the shared-team bug", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "The default list was created once, when def ran, so every call that left out team appended to the same list. Using None as the default and building the list inside the function gives each call its own team." }

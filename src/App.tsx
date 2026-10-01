@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router'
+import { Link, Outlet, ScrollRestoration } from 'react-router'
 
 export function App() {
   return (
@@ -15,6 +15,7 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <Outlet />
       </main>
+      <ScrollRestoration />
     </>
   )
 }

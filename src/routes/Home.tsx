@@ -80,6 +80,11 @@ export function Home() {
           Work through them in order. Every section ends with a checkpoint you build into PokeTeam,
           and all {sections.length} sections are open from day one.
         </p>
+        {import.meta.env.DEV && (
+          <p className="dev-link">
+            <Link to="/lesson/fixture">Open the fixture lesson</Link> (development only)
+          </p>
+        )}
       </header>
 
       <div className="home-body">

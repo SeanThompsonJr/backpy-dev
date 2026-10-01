@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "You're counting rows per Pokémon, so you need one group per name and an aggregate over each group.",
+    "If the order is wrong, check the sort direction: by default ORDER BY sorts smallest first."
+  ],
+  "solution_explanation": "GROUP BY pokemon collapses the rows into one per name, count(*) counts the rows in each group, and ORDER BY picks DESC, pokemon puts the most-picked first and breaks ties alphabetically."
+}

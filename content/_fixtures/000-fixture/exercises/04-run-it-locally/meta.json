@@ -1,0 +1,5 @@
+{ "type": "local", "title": "Run the fix on your own machine", "runtime": "local",
+  "checklist": [
+    "fix.py runs with python and prints two separate teams",
+    "You can say, in one sentence, why the original version printed one shared team"
+  ] }
