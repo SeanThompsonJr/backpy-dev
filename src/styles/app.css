@@ -371,6 +371,12 @@ main:focus {
   transform: rotate(45deg);
 }
 
+.page-loading {
+  padding: var(--space-8) var(--space-5);
+  color: var(--text-faint);
+  text-align: center;
+}
+
 /* ---------- Simple message pages ---------- */
 
 .page-message {

@@ -14,6 +14,8 @@ const router = createHashRouter([
   {
     path: '/',
     element: <App />,
+    // Shown for a moment when a lesson URL is opened directly, while its code loads.
+    hydrateFallbackElement: <p className="page-loading">Loading…</p>,
     children: [
       { index: true, element: <Home /> },
       {

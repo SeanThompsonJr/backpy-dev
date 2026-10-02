@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
-import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap, indentWithTab, isolateHistory } from '@codemirror/commands'
 import { python } from '@codemirror/lang-python'
 import { PostgreSQL, sql } from '@codemirror/lang-sql'
 import { bracketMatching, indentOnInput, indentUnit } from '@codemirror/language'
@@ -70,7 +70,11 @@ export function CodeEditor({ value, language, label, onChange }: Props) {
   useEffect(() => {
     const v = view.current
     if (v && v.state.doc.toString() !== value) {
-      v.dispatch({ changes: { from: 0, to: v.state.doc.length, insert: value } })
+      // A replacement from outside (e.g. Reset) is its own undo step, never merged with typing.
+      v.dispatch({
+        changes: { from: 0, to: v.state.doc.length, insert: value },
+        annotations: isolateHistory.of('full'),
+      })
     }
   }, [value])
 

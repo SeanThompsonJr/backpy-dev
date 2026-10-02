@@ -392,6 +392,99 @@ mark.claim:focus {
   font-size: var(--step--1);
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-run {
+  border-color: var(--py-blue);
+  background: transparent;
+  color: var(--py-blue);
+}
+.btn-run:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--py-blue) 14%, transparent);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--panel);
+  color: var(--text);
+}
+.python-status {
+  color: var(--text-faint);
+  font-size: var(--step--1);
+}
+.python-status:empty {
+  display: none;
+}
+
+.output-text {
+  margin: 0 0 var(--space-3);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.output-stderr {
+  color: var(--err);
+}
+.output-note {
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+}
+.run-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+}
+.run-summary svg {
+  flex: none;
+  margin-top: 2px;
+}
+.run-summary-ok svg {
+  color: var(--ok);
+}
+.run-summary-error svg {
+  color: var(--err);
+}
+.spin {
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
 .output-pane {
   flex: 0 0 32%;
   overflow-y: auto;
