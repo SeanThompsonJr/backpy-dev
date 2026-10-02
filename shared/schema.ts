@@ -87,6 +87,9 @@ export const sqlTestsSchema = z.strictObject({ checks: z.array(sqlCheckSchema).m
 export type SqlCheck = z.infer<typeof sqlCheckSchema>
 export type SqlTests = z.infer<typeof sqlTestsSchema>
 
+/** The H2 sections of an exercise's instructions.md, in order (LESSON_FORMAT.md, "instructions.md"). */
+export const INSTRUCTION_SECTIONS = ['The situation', 'Your task', 'Example', 'Done when'] as const
+
 /** Required files per exercise type (LESSON_FORMAT.md, "Files per exercise type"). */
 export const EXERCISE_FILES: Record<ExerciseType, readonly string[]> = {
   code: ['meta.json', 'instructions.md', 'starter.py', 'tests.py', 'solution.py', 'hints.json'],

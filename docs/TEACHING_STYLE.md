@@ -33,6 +33,8 @@ backpy uses AI to explain, never to do the exercise for him.
 - Every lesson answers: what is it, why does it exist, when would I use it on the job,
   what goes wrong.
 - Short sections. No filler, no motivational padding.
+- Readable at a glance: short sentences, one idea each, plain words. Prefer a numbered list
+  or a small example over a long paragraph. If a sentence needs rereading, split it.
 - Modern practice only (2026). Library and version rules live in content/_registry/conventions.json.
 - Stay on topic. Every code block and exercise serves this lesson's concept. Use SQL only in
   lessons where SQL is the subject or genuinely part of the concept (e.g. a data-layer lesson),
@@ -45,6 +47,12 @@ backpy uses AI to explain, never to do the exercise for him.
   exercise) sets up a realistic PokeTeam situation: what's being built, or what a user
   reported and what should happen instead. A bug hunt describes the symptom, never the cause.
 - Plain `code` exercises are for when there's nothing natural to break: building something new.
+- **Instructions must be obvious.** Sean should know exactly what to do after 20 seconds of
+  reading. Use the fixed shape in LESSON_FORMAT.md (The situation, Your task, Example,
+  Done when): numbered steps, exact names, a concrete example, and a done-when list that
+  matches the tests one to one.
+- **Never hide an expected output.** If something should happen when a value is False (or
+  empty, or missing), the example shows that output too, not just the True case.
 
 ## Five questions (reuse them everywhere)
 When a lesson discusses failure modes, frame them with these:

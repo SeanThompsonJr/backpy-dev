@@ -4,7 +4,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab, isolateHistory } 
 import { python } from '@codemirror/lang-python'
 import { PostgreSQL, sql } from '@codemirror/lang-sql'
 import { bracketMatching, indentOnInput, indentUnit } from '@codemirror/language'
-import { EditorState } from '@codemirror/state'
+import { EditorState, Prec } from '@codemirror/state'
 import {
   EditorView,
   drawSelection,
@@ -23,17 +23,21 @@ interface Props {
   language: EditorLanguage
   label: string
   onChange: (value: string) => void
+  /** Ctrl+Enter (Cmd+Enter on a Mac) */
+  onRun?: () => void
 }
 
 /**
  * CodeMirror 6 editor. The parent owns the text: when `value` changes from outside
  * (switching exercise, reset), the editor's document is replaced.
  */
-export function CodeEditor({ value, language, label, onChange }: Props) {
+export function CodeEditor({ value, language, label, onChange, onRun }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const view = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
+  const onRunRef = useRef(onRun)
+  onRunRef.current = onRun
 
   useEffect(() => {
     const state = EditorState.create({
@@ -50,6 +54,19 @@ export function CodeEditor({ value, language, label, onChange }: Props) {
         highlightActiveLine(),
         indentUnit.of('    '),
         EditorState.tabSize.of(4),
+        // Highest precedence so Mod-Enter runs the code instead of inserting a blank line.
+        Prec.highest(
+          keymap.of([
+            {
+              key: 'Mod-Enter',
+              run: () => {
+                if (!onRunRef.current) return false
+                onRunRef.current()
+                return true
+              },
+            },
+          ]),
+        ),
         keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap, indentWithTab]),
         language === 'python' ? python() : sql({ dialect: PostgreSQL }),
         backpyTheme,

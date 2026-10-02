@@ -1,12 +1,15 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import { Bug, Code, Database, Play, RotateCcw, Terminal, type LucideIcon } from 'lucide-react'
+import { Bug, CircleCheck, Code, Database, Play, RotateCcw, Send, Terminal, type LucideIcon } from 'lucide-react'
+import { gradeTestRun } from '../../shared/grade'
 import type { ExerciseType } from '../../shared/schema'
 import type { Exercise } from '../../shared/lesson-parse'
 import { python, type PythonStatus } from '../runtime/python-client'
 import { usePythonStatus } from '../runtime/usePythonStatus'
 import { CodeEditor } from './CodeEditor'
+import { NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { Markdown } from './Markdown'
 import { appendChunk, IDLE, OutputPane, type RunState } from './OutputPane'
+import { StuckPanel } from './StuckPanel'
 
 export const TYPE_LABEL: Record<ExerciseType, string> = {
   code: 'Code',
@@ -15,6 +18,9 @@ export const TYPE_LABEL: Record<ExerciseType, string> = {
   local: 'On your machine',
 }
 export const TYPE_ICON: Record<ExerciseType, LucideIcon> = { code: Code, bug_hunt: Bug, sql: Database, local: Terminal }
+
+const isPythonExercise = (e: Exercise) => e.meta.type === 'code' || e.meta.type === 'bug_hunt'
+const runShortcut = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? 'Cmd+Enter' : 'Ctrl+Enter'
 
 function Checklist({ items, done, onChange }: { items: string[]; done: boolean[]; onChange: (done: boolean[]) => void }) {
   return (
@@ -46,13 +52,17 @@ interface CodeExerciseProps {
   onChange: (value: string) => void
   run: RunState
   onRun: () => void
+  onSubmit: () => void
   onReset: () => void
+  onShowHint: () => void
+  solved: boolean
 }
 
-function CodeExercise({ exercise, code, onChange, run, onRun, onReset }: CodeExerciseProps) {
-  const isPython = exercise.meta.type === 'code' || exercise.meta.type === 'bug_hunt'
+function CodeExercise({ exercise, code, onChange, run, onRun, onSubmit, onReset, onShowHint, solved }: CodeExerciseProps) {
+  const isPython = isPythonExercise(exercise)
   const pythonStatus = usePythonStatus()
   const busy = pythonStatus === 'running'
+  const unavailable = pythonStatus === 'failed'
   return (
     <>
       <div className="editor-frame">
@@ -61,14 +71,19 @@ function CodeExercise({ exercise, code, onChange, run, onRun, onReset }: CodeExe
           language={isPython ? 'python' : 'sql'}
           label={`${isPython ? 'Python' : 'SQL'} editor: ${exercise.meta.title}`}
           onChange={onChange}
+          onRun={isPython ? () => !busy && !unavailable && onRun() : undefined}
         />
       </div>
       <div className="work-toolbar">
         {isPython && (
           <>
-            <button type="button" className="btn btn-run" onClick={onRun} disabled={busy || pythonStatus === 'failed'}>
+            <button type="button" className="btn btn-run" onClick={onRun} disabled={busy || unavailable}>
               <Play size={16} aria-hidden="true" />
               Run
+            </button>
+            <button type="button" className="btn btn-submit" onClick={onSubmit} disabled={busy || unavailable}>
+              {solved ? <CircleCheck size={16} aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
+              Submit
             </button>
             <button
               type="button"
@@ -84,10 +99,17 @@ function CodeExercise({ exercise, code, onChange, run, onRun, onReset }: CodeExe
             </p>
           </>
         )}
-        <p className="editor-help">Esc then Tab moves focus out of the editor.</p>
+        <p className="editor-help">
+          {isPython && `${runShortcut} runs your code. `}Esc then Tab leaves the editor.
+        </p>
       </div>
       {isPython ? (
-        <OutputPane state={run} python={pythonStatus} />
+        <OutputPane
+          state={run}
+          python={pythonStatus}
+          bugDescription={exercise.meta.type === 'bug_hunt' ? exercise.meta.bug_description : undefined}
+          onShowHint={onShowHint}
+        />
       ) : (
         <section className="output-pane" aria-label="Output" data-testid="output">
           <p className="output-empty">Output appears here when you run your code.</p>
@@ -101,9 +123,14 @@ interface Props {
   exercises: Exercise[]
   selected: number
   onSelect: (index: number) => void
+  progress: Record<string, ExerciseProgress>
+  /** Called after each Submit; returns what the result unlocked, if anything */
+  onSubmitted: (folder: string, passed: boolean) => string | undefined
+  onShowHint: (folder: string, hint: 1 | 2) => void
+  onShowSolution: (folder: string) => void
 }
 
-export function ExercisePanel({ exercises, selected, onSelect }: Props) {
+export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmitted, onShowHint, onShowSolution }: Props) {
   const [code, setCode] = useState<Record<string, string>>(() =>
     Object.fromEntries(exercises.map((e) => [e.folder, e.starter ?? ''])),
   )
@@ -112,10 +139,11 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const baseId = useId()
   const exercise = exercises[selected]
+  const progressOf = (ex: Exercise) => progress[ex.folder] ?? NEW_PROGRESS
 
   // Start loading Python as soon as a lesson with Python exercises opens.
   useEffect(() => {
-    if (exercises.some((e) => e.meta.type === 'code' || e.meta.type === 'bug_hunt')) python.warmUp()
+    if (exercises.some(isPythonExercise)) python.warmUp()
   }, [exercises])
 
   const updateRun = (folder: string, update: (state: RunState) => RunState) =>
@@ -125,7 +153,7 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
     if (ex.meta.type !== 'code' && ex.meta.type !== 'bug_hunt') return
     const { folder } = ex
     const timeoutSeconds = ex.meta.timeout_seconds
-    updateRun(folder, () => ({ phase: 'running', chunks: [], timeoutSeconds }))
+    updateRun(folder, () => ({ phase: 'running', mode: 'run', chunks: [], timeoutSeconds }))
     const outcome = await python.run(code[folder], {
       packages: ex.meta.packages,
       timeoutSeconds,
@@ -137,10 +165,35 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
         const withError = outcome.error ? appendChunk(s, { stream: 'stderr', text: outcome.error + '\n' }) : s
         return { ...withError, phase: outcome.ok ? 'finished' : 'error', seconds: outcome.seconds }
       }
-      if (outcome.kind === 'timeout') return { ...s, phase: 'timeout', seconds: outcome.seconds }
+      if (outcome.kind === 'timeout') return { ...s, phase: 'timeout', timeoutDuring: outcome.during, seconds: outcome.seconds }
       if (outcome.kind === 'unavailable') return { ...s, phase: 'unavailable', message: outcome.message }
       return s
     })
+  }
+
+  const submitCode = async (ex: Exercise) => {
+    if (ex.meta.type !== 'code' && ex.meta.type !== 'bug_hunt') return
+    const { folder } = ex
+    const timeoutSeconds = ex.meta.timeout_seconds
+    updateRun(folder, () => ({ phase: 'running', mode: 'submit', chunks: [], timeoutSeconds }))
+    const outcome = await python.test(code[folder], ex.tests ?? '', { packages: ex.meta.packages, timeoutSeconds })
+    if (outcome.kind === 'unavailable') {
+      updateRun(folder, (s) => ({ ...s, phase: 'unavailable', message: outcome.message }))
+      return
+    }
+    if (outcome.kind === 'finished') {
+      // The worker failed before any checks could run (e.g. a package didn't load).
+      updateRun(folder, (s) => ({ ...appendChunk(s, { stream: 'stderr', text: (outcome.error ?? '') + '\n' }), phase: 'error' }))
+      return
+    }
+    if (outcome.kind === 'timeout') {
+      // A timeout says nothing about whether the code is right, so it isn't a failed submit.
+      updateRun(folder, (s) => ({ ...s, phase: 'timeout', mode: 'submit', timeoutDuring: outcome.during }))
+      return
+    }
+    const grade = gradeTestRun(outcome.result)
+    const unlocked = onSubmitted(folder, grade.passed)
+    updateRun(folder, (s) => ({ ...s, phase: 'graded', mode: 'submit', grade, unlocked }))
   }
 
   const resetCode = (ex: Exercise) => {
@@ -156,6 +209,9 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
     onSelect(next)
     tabs.current[next]?.focus()
   }
+
+  const current = progressOf(exercise)
+  const run = runs[exercise.folder] ?? IDLE
 
   return (
     <section className="work-pane" aria-label="Exercises">
@@ -178,6 +234,12 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
             >
               <span className="exercise-tab-num">{i + 1}</span>
               {TYPE_LABEL[ex.meta.type]}
+              {progressOf(ex).solved && (
+                <>
+                  <CircleCheck size={14} className="exercise-tab-solved" aria-hidden="true" />
+                  <span className="visually-hidden"> (solved)</span>
+                </>
+              )}
             </button>
           ))}
         </div>
@@ -190,10 +252,16 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
         data-testid="exercise-panel"
         data-type={exercise.meta.type}
       >
-        {/* On narrow screens the lesson text is far above, so the scenario sits here instead. */}
+        {/* On narrow screens the lesson text is far above, so the scenario and hints sit here instead. */}
         <div className="exercise-brief-inline" data-testid="exercise-brief-inline">
           <h2>{exercise.meta.title}</h2>
-          <Markdown className="prose prose-compact">{exercise.instructions ?? ''}</Markdown>
+          <Markdown className="prose prose-compact prose-instructions">{exercise.instructions ?? ''}</Markdown>
+          <StuckPanel
+            exercise={exercise}
+            progress={current}
+            onShowHint={(n) => onShowHint(exercise.folder, n)}
+            onShowSolution={() => onShowSolution(exercise.folder)}
+          />
         </div>
         {exercise.meta.type === 'local' ? (
           <div className="local-exercise">
@@ -209,9 +277,12 @@ export function ExercisePanel({ exercises, selected, onSelect }: Props) {
             exercise={exercise}
             code={code[exercise.folder]}
             onChange={(v) => setCode((c) => ({ ...c, [exercise.folder]: v }))}
-            run={runs[exercise.folder] ?? IDLE}
+            run={run}
             onRun={() => runCode(exercise)}
+            onSubmit={() => submitCode(exercise)}
             onReset={() => resetCode(exercise)}
+            onShowHint={() => onShowHint(exercise.folder, current.failedSubmits >= 2 ? 2 : 1)}
+            solved={current.solved}
           />
         )}
       </div>

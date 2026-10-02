@@ -5,6 +5,7 @@ import type { z } from 'zod'
 import { locateQuote, proseBlocks } from './claims'
 import {
   EXERCISE_FILES,
+  INSTRUCTION_SECTIONS,
   LESSON_SECTIONS,
   frontMatterSchema,
   hintsSchema,
@@ -250,12 +251,39 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
     }
 
     const exercise: Exercise = { folder: exFolder, meta, instructions: get('instructions.md') }
+    const instructionSections = exercise.instructions === undefined ? undefined : scanMarkdown(exercise.instructions)
+    if (instructionSections) {
+      const file = at(exPath('instructions.md'))
+      issues.push(...instructionSections.issues.map((message) => ({ file, message })))
+      const titles = instructionSections.sections.map((s) => s.title)
+      const expected =
+        meta.type === 'local'
+          ? INSTRUCTION_SECTIONS.filter((s) => s !== 'Done when' && (s !== 'Example' || titles.includes('Example')))
+          : INSTRUCTION_SECTIONS
+      if (titles.join('|') !== expected.join('|')) {
+        issues.push({
+          file,
+          message: `sections must be ${expected.map((s) => `"## ${s}"`).join(', ')}, in that order. Found: ${titles.map((t) => `"## ${t}"`).join(', ') || 'none'}`,
+        })
+      }
+    }
     if (meta.type === 'code' || meta.type === 'bug_hunt') {
       exercise.starter = get('starter.py')
       exercise.tests = get('tests.py')
       exercise.solution = get('solution.py')
       if (exercise.tests !== undefined && !/^from main import \*\s*$/m.test(exercise.tests)) {
         issues.push({ file: at(exPath('tests.py')), message: 'must import the learner\'s code with "from main import *"' })
+      }
+      const doneWhen = instructionSections?.sections.find((s) => s.title === 'Done when')
+      if (exercise.tests !== undefined && doneWhen) {
+        const tests = exercise.tests.match(/^def test\w*\s*\(/gm)?.length ?? 0
+        const bullets = doneWhen.markdown.match(/^[-*] /gm)?.length ?? 0
+        if (tests !== bullets) {
+          issues.push({
+            file: at(exPath('instructions.md')),
+            message: `"## Done when" has ${bullets} bullet${bullets === 1 ? '' : 's'} but tests.py has ${tests} test${tests === 1 ? '' : 's'}; give one bullet per test`,
+          })
+        }
       }
     } else if (meta.type === 'sql') {
       exercise.seed = get('seed.sql')

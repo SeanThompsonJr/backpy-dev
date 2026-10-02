@@ -13,7 +13,8 @@ export interface OutputChunk {
 export type PythonOutcome =
   | { kind: 'finished'; ok: boolean; seconds: number; error?: string }
   | { kind: 'tested'; result: TestRun; seconds: number }
-  | { kind: 'timeout'; seconds: number }
+  /** running: the code ran past its time limit. loading: Python or its packages never finished downloading. */
+  | { kind: 'timeout'; during: 'loading' | 'running'; seconds: number }
   | { kind: 'unavailable'; message: string }
 
 type RequestWithoutId = PythonRequest extends infer R ? (R extends unknown ? Omit<R, 'id'> : never) : never
@@ -31,7 +32,14 @@ interface Pending {
   resolve: (outcome: PythonOutcome) => void
   startedAt?: number
   timer?: ReturnType<typeof setTimeout>
+  loadTimer?: ReturnType<typeof setTimeout>
 }
+
+/**
+ * How long Python and the exercise's packages may take to download before a run gives up.
+ * Generous, because the first load is about 13 MB. Tests shorten it via __backpyLoadTimeoutMs.
+ */
+const loadTimeoutMs = () => (globalThis as { __backpyLoadTimeoutMs?: number }).__backpyLoadTimeoutMs ?? 120_000
 
 class PythonClient {
   private worker: Worker | null = null
@@ -82,6 +90,7 @@ class PythonClient {
     const pending = this.pending
     if (!pending) return
     clearTimeout(pending.timer)
+    clearTimeout(pending.loadTimer)
     this.pending = null
     if (this.loaded) this.setStatus('ready')
     pending.resolve(outcome)
@@ -105,8 +114,9 @@ class PythonClient {
     if (!pending || message.id !== pending.id) return
     switch (message.type) {
       case 'started':
+        clearTimeout(pending.loadTimer)
         pending.startedAt = performance.now()
-        pending.timer = setTimeout(() => this.stopForTimeout(), pending.options.timeoutSeconds * 1000)
+        pending.timer = setTimeout(() => this.stopForTimeout('running'), pending.options.timeoutSeconds * 1000)
         break
       case 'stdout':
       case 'stderr':
@@ -124,12 +134,12 @@ class PythonClient {
     }
   }
 
-  private stopForTimeout() {
+  private stopForTimeout(during: 'loading' | 'running') {
     const seconds = this.elapsed()
     this.worker?.terminate()
     this.worker = null
     this.loaded = false
-    this.finish({ kind: 'timeout', seconds })
+    this.finish({ kind: 'timeout', during, seconds })
     this.spawn('restarting')
   }
 
@@ -142,6 +152,7 @@ class PythonClient {
     const id = this.nextId++
     return new Promise((resolve) => {
       this.pending = { id, options, resolve }
+      this.pending.loadTimer = setTimeout(() => this.stopForTimeout('loading'), loadTimeoutMs())
       this.setStatus('running')
       this.worker!.postMessage({ ...request, id } as PythonRequest)
     })

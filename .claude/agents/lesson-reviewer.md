@@ -19,7 +19,9 @@ Check:
 3. **Currency**: anything outdated, deprecated, or against conventions.json?
 4. **Teaching**: does each lesson follow the learning method? Do hints point at the concept
    instead of the code? Does the worked example give away the exercise answer? Are failure
-   modes covered?
+   modes covered? Is every instructions.md readable at a glance, and does its Example show
+   the exact expected output for every case the tests check (both True and False, empty and
+   non-empty)? A case the tests check but the Example doesn't show is a must-fix.
 5. **Coverage**: compare with the section's BRIEF.md and any reference/ material. What did a
    good course cover that this section missed? (Never suggest copying reference text.)
 

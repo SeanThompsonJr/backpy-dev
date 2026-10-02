@@ -1,13 +1,37 @@
-PokeTeam's "New team" button only asks for a name. Everything else has to be filled in for
-the user, and the team list page needs a one-line summary of each team.
+## The situation
 
-Write two functions:
+PokeTeam's **New team** button only asks for a name. Your code fills in the rest.
+The team list also needs a one-line summary of each team.
 
-- `make_team(name, ...)` returns a dict with `"name"`, `"members"` and `"public"`.
-  Callers can pass a list of members and whether the team is public, but they don't have to.
-  A team made without members starts with an empty list of its own, and a team starts
-  private unless the caller says otherwise.
-- `describe_team(team)` prints one line, like `Rain Dance (private): 2 members`.
+## Your task
 
-Done when two teams made without members never share a roster, members passed in end up on
-the team, and the summary line matches the example exactly.
+1. Give `make_team` two more parameters: `members` and `public`. Both are optional.
+2. Return a dict with the keys `"name"`, `"members"` and `"public"`.
+3. Write `describe_team(team)` so it prints one summary line.
+   The line says `private` when `public` is `False`, and `public` when it's `True`.
+
+## Example
+
+```python
+rain = make_team("Rain Dance")
+print(rain)
+# {'name': 'Rain Dance', 'members': [], 'public': False}
+
+volt = make_team("Volt Turn", ["rotom"], True)
+print(volt)
+# {'name': 'Volt Turn', 'members': ['rotom'], 'public': True}
+
+describe_team({"name": "Rain Dance", "members": ["pelipper", "barraskewda"], "public": False})
+# Rain Dance (private): 2 members
+
+describe_team({"name": "Volt Turn", "members": ["rotom", "magnezone"], "public": True})
+# Volt Turn (public): 2 members
+```
+
+## Done when
+
+- Two new teams never share the same members list.
+- Members you pass in end up on the team.
+- A team is private unless you say otherwise.
+- A private team's summary line matches the example exactly.
+- A public team's summary line matches the example exactly.

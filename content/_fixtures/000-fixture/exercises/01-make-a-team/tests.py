@@ -19,7 +19,13 @@ def test_teams_start_private():
         "A team nobody marked public should be private. What value does public get when the caller leaves it out?"
 
 
-def test_summary_line(capsys):
+def test_private_summary_line_matches_the_example(capsys):
     describe_team({"name": "Rain Dance", "members": ["pelipper", "barraskewda"], "public": False})
     assert capsys.readouterr().out == "Rain Dance (private): 2 members\n", \
-        "The summary line doesn't match the example. Compare it character by character, including the brackets and colon."
+        "The private summary line doesn't match the example. Compare it character by character, including the brackets and colon."
+
+
+def test_public_summary_line_matches_the_example(capsys):
+    describe_team({"name": "Volt Turn", "members": ["rotom", "magnezone"], "public": True})
+    assert capsys.readouterr().out == "Volt Turn (public): 2 members\n", \
+        "The public summary line doesn't match the example. What should the word in brackets be when public is True?"

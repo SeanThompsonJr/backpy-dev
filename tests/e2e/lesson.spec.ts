@@ -30,14 +30,14 @@ test.describe('desktop', () => {
 
   test('lesson code blocks are syntax highlighted, and broken blocks say how they fail', async ({ page }) => {
     await openFixture(page)
-    const blocks = page.locator('.code-block')
+    const blocks = page.locator('.left-view-lesson .code-block')
     await expect(blocks).toHaveCount(5)
     await expect(blocks.first().locator('.hljs-keyword').first()).toHaveText('def')
     const keywordColor = await blocks.first().locator('.hljs-keyword').first().evaluate((el) => getComputedStyle(el).color)
     const plainColor = await blocks.first().locator('pre').evaluate((el) => getComputedStyle(el).color)
     expect(keywordColor).not.toBe(plainColor)
-    await expect(page.locator('.code-block[data-mode="broken"]')).toContainText('Broken on purpose: raises TypeError')
-    await expect(page.locator('.code-block[data-mode="run"]')).toHaveCount(4)
+    await expect(page.locator('.left-view-lesson .code-block[data-mode="broken"]')).toContainText('Broken on purpose: raises TypeError')
+    await expect(page.locator('.left-view-lesson .code-block[data-mode="run"]')).toHaveCount(4)
   })
 
   test('verify-this names the exact statement, says what to check, and shows it in the text', async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe('desktop', () => {
     const brief = page.getByTestId('exercise-brief')
     await expect(brief.getByRole('heading', { level: 1 })).toHaveText('Fix the shared-team bug')
     await expect(brief).toContainText('Exercise 2 of 4: Bug hunt')
-    await expect(brief).toContainText('I made a brand-new team and it already had Pikachu in it.')
+    await expect(brief).toContainText('I made a brand-new team, and Pikachu was already on it.')
     await expect(page.getByText('Python creates the default')).toBeHidden()
 
     await switcher.getByRole('tab', { name: 'Lesson' }).click()
@@ -115,7 +115,7 @@ test.describe('desktop', () => {
     await openFixture(page)
     await exerciseTab(page, /On your machine/).click()
     await expect(page.getByTestId('code-editor')).toHaveCount(0)
-    await expect(page.getByTestId('exercise-brief')).toContainText('Run it from a terminal')
+    await expect(page.getByTestId('exercise-brief')).toContainText('Open a terminal in that folder and run')
     const first = page.getByRole('checkbox', { name: /fix.py runs with python/ })
     await first.check()
     await exerciseTab(page, /SQL/).click()
@@ -138,7 +138,7 @@ test.describe('phone', () => {
 
     await expect(page.getByRole('tablist', { name: 'Left side shows' })).toBeHidden()
     const inline = page.getByTestId('exercise-brief-inline')
-    await expect(inline).toContainText('PokeTeam’s "New team" button only asks for a name.'.replace('’', "'"))
+    await expect(inline).toContainText("PokeTeam's New team button only asks for a name.")
     await exerciseTab(page, /Bug hunt/).click()
     await expect(inline).toContainText('I made a brand-new team')
     await expect(page.getByText('Python creates the default')).toBeVisible()

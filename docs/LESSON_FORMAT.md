@@ -106,11 +106,42 @@ Files per exercise type:
 
 ## instructions.md
 Every exercise has one. It's the scenario, and it replaces the lesson text on the left when
-Sean opens the exercise (see TEACHING_STYLE.md, "Exercises"). Short Markdown:
-- The situation in PokeTeam: what's being built, or what a user reported.
-- What "done" looks like: the behaviour the tests check, in plain words.
-- For a bug hunt: the symptom and the expected behaviour. Never the cause or the fix.
-- Not the answer, and not a restatement of the lesson.
+Sean opens the exercise (see TEACHING_STYLE.md, "Exercises"). After 20 seconds of reading he
+must know exactly what to do. It uses these sections, in this order:
+
+````markdown
+## The situation
+One to three short sentences about what's happening in PokeTeam. For a bug hunt: the user's
+report as a > quote, then one sentence on what should happen instead.
+
+## Your task
+1. One action per numbered step, starting with a verb.
+2. Name every function, parameter and value exactly as the tests use them.
+
+## Example
+```python
+team = make_team("Rain Dance")
+print(team["members"])   # []
+```
+
+## Done when
+- One bullet per test in tests.py, in the same order, in plain words.
+````
+
+- `code`, `bug_hunt` and `sql` exercises use all four sections. For `sql`, the Example shows
+  a few rows of the expected result.
+- `local` exercises use The situation, Your task, and optionally Example. Their done-when list
+  is the `checklist` in meta.json.
+- Second person ("you"), short sentences (aim for under 20 words), plain words. No term
+  that hasn't been taught yet.
+- The Example covers every case. When the output depends on a condition (True or False,
+  empty or not, found or missing), show the exact expected output for each outcome. Sean
+  should never have to guess an output that a test checks.
+- Show behaviour, not implementation. Never the cause of a bug or the code of the fix.
+- Not a restatement of the lesson. About 150 words at most, not counting code.
+
+The parser rejects missing or out-of-order sections, and a Done when list whose bullet count
+doesn't match the number of tests in tests.py.
 
 `sql` meta.json uses `"runtime": "pglite"` and has no `packages`. `local` meta.json uses
 `"runtime": "local"` and lists what Sean ticks off when he's done:
@@ -146,7 +177,10 @@ def test_lists_not_shared():
         "Each call got the same list. When is a default value created: at definition or at call?"
 ```
 Tests must run under real pytest in CPython AND under backpy's small test runner in Pyodide.
-The failure message is shown to Sean as the first thinking hint.
+The failure message is shown to Sean as the first thinking hint, so every assert has one.
+Name each test as a plain-English statement of the behaviour, e.g.
+`test_new_teams_get_their_own_roster`: when he submits, Sean sees the test names as a
+checklist ("new teams get their own roster"), so they must read naturally.
 
 ## hints.json
 ```json

@@ -5,6 +5,9 @@ import type { LessonEntry } from '../../shared/content'
 import type { UnverifiedClaim } from '../../shared/lesson-parse'
 import { curriculum } from '../data/curriculum'
 import { ExercisePanel, TYPE_ICON, TYPE_LABEL } from './ExercisePanel'
+import { ExplainBack } from './ExplainBack'
+import { afterSubmit, newlyUnlocked, NEW_PROGRESS, type ExerciseProgress } from './learning'
+import { StuckPanel } from './StuckPanel'
 import { Markdown } from './Markdown'
 
 function showClaim(index: number) {
@@ -82,10 +85,44 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   const ids = useId()
   const exercise = exercises[selected]
 
+  const [progress, setProgress] = useState<Record<string, ExerciseProgress>>({})
+  const progressRef = useRef(progress)
+  const [explanation, setExplanation] = useState('')
+  const progressOf = (folder: string) => progress[folder] ?? NEW_PROGRESS
+
   const showLeft = (view: LeftView) => {
     setLeftView(view)
     textPane.current?.scrollTo({ top: 0 })
   }
+
+  const updateProgress = (folder: string, change: (p: ExerciseProgress) => ExerciseProgress) => {
+    const before = progressRef.current[folder] ?? NEW_PROGRESS
+    const after = change(before)
+    progressRef.current = { ...progressRef.current, [folder]: after }
+    setProgress(progressRef.current)
+    return { before, after }
+  }
+
+  const onSubmitted = (folder: string, passed: boolean) => {
+    const { before, after } = updateProgress(folder, (p) => afterSubmit(p, passed))
+    return passed ? undefined : newlyUnlocked(before, after)
+  }
+
+  /** Opens a hint or the solution, then brings it into view wherever it is visible. */
+  const reveal = (folder: string, part: string, change: (p: ExerciseProgress) => ExerciseProgress) => {
+    updateProgress(folder, change)
+    setLeftView('exercise')
+    requestAnimationFrame(() => {
+      const target = [...document.querySelectorAll<HTMLElement>(`[data-hint="${folder}-${part}"]`)].find(
+        (el) => el.offsetParent !== null,
+      )
+      target?.scrollIntoView({ block: 'nearest' })
+      target?.focus({ preventScroll: true })
+    })
+  }
+  const showHint = (folder: string, hint: 1 | 2) =>
+    reveal(folder, `hint-${hint}`, (p) => ({ ...p, hintsShown: Math.max(p.hintsShown, hint) }))
+  const showSolution = (folder: string) => reveal(folder, 'solution', (p) => ({ ...p, solutionShown: true }))
   const selectExercise = (index: number) => {
     setSelected(index)
     showLeft('exercise')
@@ -145,6 +182,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
           <Markdown className="prose" claims={claims}>
             {body}
           </Markdown>
+          <ExplainBack question={fm.explain_back} answer={explanation} onChange={setExplanation} />
           {!isFixture && <Pager id={fm.id} />}
         </div>
 
@@ -165,11 +203,33 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
                 Exercise {selected + 1} of {exercises.length}: {TYPE_LABEL[exercise.meta.type]}
               </p>
             </header>
-            <Markdown className="prose">{exercise.instructions ?? ''}</Markdown>
+            <Markdown className="prose prose-instructions">{exercise.instructions ?? ''}</Markdown>
+            {exercise.meta.type === 'bug_hunt' && progressOf(exercise.folder).solved && (
+              <div className="bug-reveal">
+                <p className="bug-reveal-label">What the bug was</p>
+                <p>{exercise.meta.bug_description}</p>
+              </div>
+            )}
+            <StuckPanel
+              exercise={exercise}
+              progress={progressOf(exercise.folder)}
+              onShowHint={(n) => showHint(exercise.folder, n)}
+              onShowSolution={() => showSolution(exercise.folder)}
+            />
           </div>
         )}
       </article>
-      {exercise && <ExercisePanel exercises={exercises} selected={selected} onSelect={selectExercise} />}
+      {exercise && (
+        <ExercisePanel
+          exercises={exercises}
+          selected={selected}
+          onSelect={selectExercise}
+          progress={progress}
+          onSubmitted={onSubmitted}
+          onShowHint={showHint}
+          onShowSolution={showSolution}
+        />
+      )}
     </div>
   )
 }

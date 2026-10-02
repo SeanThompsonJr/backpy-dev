@@ -163,6 +163,33 @@ describe('lesson parser catches format mistakes', () => {
       /01-make-a-team\/instructions\.md: missing \(required for code exercises\)/,
     )
   })
+  it('instructions without the required sections, or out of order', () => {
+    const path = ex('01-make-a-team', 'instructions.md')
+    expect(mutate((f) => (f[path] = f[path].replace('## Example', '## Sample')))).toMatch(
+      /01-make-a-team\/instructions\.md: sections must be "## The situation", "## Your task", "## Example", "## Done when", in that order/,
+    )
+    expect(
+      mutate((f) => {
+        const [situation, rest] = f[path].split('## Your task')
+        f[path] = '## Your task' + rest + '\n' + situation
+      }),
+    ).toMatch(/in that order/)
+  })
+  it('a done-when list that does not match the tests one to one', () => {
+    const path = ex('02-shared-team-bug', 'instructions.md')
+    expect(mutate((f) => (f[path] = f[path].replace('- Each new team starts empty.\n', '')))).toMatch(
+      /"## Done when" has 1 bullet but tests\.py has 2 tests/,
+    )
+  })
+  it('instructions with text before the first section', () => {
+    const path = ex('03-private-by-default', 'instructions.md')
+    expect(mutate((f) => (f[path] = 'Read this first.\n\n' + f[path]))).toMatch(/text before the first "## " section/)
+  })
+  it('a local exercise may skip Example but not Your task', () => {
+    const path = ex('04-run-it-locally', 'instructions.md')
+    expect(mutate((f) => (f[path] = f[path].split('## Example')[0]))).toBe('')
+    expect(mutate((f) => (f[path] = f[path].replace('## Your task', '## Steps')))).toMatch(/04-run-it-locally\/instructions\.md: sections must be/)
+  })
   it('windows line endings parse the same as unix ones', () => {
     expect(mutate((f) => (f['lesson.md'] = f['lesson.md'].replace(/\n/g, '\r\n')))).toBe('')
   })

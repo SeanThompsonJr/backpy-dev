@@ -28,7 +28,14 @@ describe('LessonView', () => {
     const noExercises = { ...fixture, lesson: { ...fixture.lesson, exercises: [] } }
     renderLesson(noExercises)
     const h2s = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
-    expect(h2s).toEqual(['Why this matters', 'The concept', 'Worked example', 'What breaks', 'Check yourself'])
+    expect(h2s).toEqual(['Why this matters', 'The concept', 'Worked example', 'What breaks', 'Check yourself', 'Explain it back'])
+  })
+
+  it('ends the lesson with an explain-back box that asks the lesson question', () => {
+    const noExercises = { ...fixture, lesson: { ...fixture.lesson, exercises: [] } }
+    renderLesson(noExercises)
+    const box = screen.getByRole('textbox', { name: fixture.lesson.frontMatter.explain_back })
+    expect(box.tagName).toBe('TEXTAREA')
   })
 
   it('hides the verify-this note when there are no unverified claims', () => {
