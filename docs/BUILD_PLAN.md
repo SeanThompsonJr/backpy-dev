@@ -9,7 +9,9 @@ Each milestone ends with something visible in the browser and a test that proves
    feature of LESSON_FORMAT.md (run blocks, broken blocks, quiz, code exercise, bug hunt,
    sql exercise, hints). It's used to build and test the UI before real content exists.
 3. **Lesson page layout**: lesson text on the left, editor and output on the right
-   (like Boot.dev). Responsive: stacked on narrow screens.
+   (like Boot.dev). Opening an exercise switches the left side to that exercise's scenario
+   (instructions.md), with a way back to the lesson. Unverified claims are underlined in place
+   and listed in a "verify this" note. Responsive: stacked on narrow screens.
 4. **Python runtime**: Pyodide in a Web Worker. Run button, stdout/stderr output,
    timeout that kills a runaway loop, reset-to-starter button.
 5. **Exercise grading + learning loop**: hidden tests run in the worker. A failed test shows

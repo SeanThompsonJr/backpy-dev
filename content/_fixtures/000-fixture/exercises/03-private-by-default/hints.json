@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "A column can say what value to use when nobody gives one. Think about where that rule belongs: in each INSERT, or in the column itself?",
+    "The likely mistake is fixing only the new row. The teams that already existed need the value too, and adding the column is the moment Postgres fills them in."
+  ],
+  "solution_explanation": "DEFAULT false tells Postgres what to store when an INSERT leaves is_public out, and adding a column with a default also fills that value into every existing row. NOT NULL makes the database refuse a team with no answer at all, so the rule can't be skipped later."
+}

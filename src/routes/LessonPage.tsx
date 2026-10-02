@@ -1,23 +1,22 @@
 import { Link, useParams } from 'react-router'
 import { curriculum } from '../data/curriculum'
-import { contentIssues, fixture, lessonsById } from '../content/loader'
-import { LessonInspector } from '../components/LessonInspector'
+import { fixture, lessonsById } from '../content/loader'
+import { LessonView } from '../components/LessonView'
+import '../styles/lesson.css'
 
 export function LessonPage() {
   const { id } = useParams()
 
   if (id === 'fixture') {
-    if (!fixture) {
-      return (
-        <div className="page-message">
-          <h1>Fixture lesson not available</h1>
-          <p>
-            The fixture only loads in development (<code>npm run dev</code>). <Link to="/">Back to the route</Link>
-          </p>
-        </div>
-      )
-    }
-    return <LessonInspector entry={fixture} issues={contentIssues} />
+    if (fixture) return <LessonView key="fixture" entry={fixture} />
+    return (
+      <div className="page-message">
+        <h1>Fixture lesson not available</h1>
+        <p>
+          The fixture only loads in development (<code>npm run dev</code>). <Link to="/">Back to the route</Link>
+        </p>
+      </div>
+    )
   }
 
   const lesson = curriculum.lessonById.get(Number(id))
@@ -33,7 +32,8 @@ export function LessonPage() {
   }
 
   const entry = lessonsById.get(lesson.id)
-  if (entry) return <LessonInspector entry={entry} issues={contentIssues} />
+  // Keyed by lesson so moving to another lesson starts with fresh exercise state.
+  if (entry) return <LessonView key={entry.lesson.folder} entry={entry} />
 
   const section = curriculum.sectionByNumber.get(lesson.sectionNumber)!
   return (

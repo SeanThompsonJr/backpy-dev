@@ -1,0 +1,7 @@
+{
+  "checks": [
+    { "kind": "same_columns", "message": "The result should list id, name and is_public, in that order. Did the final SELECT change?" },
+    { "kind": "row_count", "message": "There should be three teams: the two that already existed and the new one. Did the INSERT run?" },
+    { "kind": "same_rows", "ordered": true, "message": "Some teams have no value for is_public. What does Postgres store when an INSERT leaves a column out, and how do you change that for this column?" }
+  ]
+}

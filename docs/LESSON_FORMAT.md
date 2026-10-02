@@ -20,6 +20,7 @@ content/
         exercises/
           01-some-name/
             meta.json
+            instructions.md # the scenario, shown on the left when Sean opens the exercise
             starter.py      # or starter.sql
             tests.py        # hidden from Sean in the UI
             solution.py     # locked until 2 failed runs
@@ -55,6 +56,17 @@ unverified_claims: []              # filled by the reviewer if a claim couldn't 
 ## What breaks
 ## Check yourself
 ```
+`unverified_claims` lists each claim the reviewer couldn't confirm against an official source.
+Each entry quotes the claim exactly as it appears in the lesson text and says what to check:
+```yaml
+unverified_claims:
+  - quote: "Postgres evaluates a column default for every inserted row"
+    check: "PostgreSQL docs, CREATE TABLE, DEFAULT clause: confirm the default expression is evaluated per inserted row."
+```
+- `quote` must appear word for word in one paragraph or list item of the lesson's prose
+  (formatting like **bold** or `code` is ignored when matching). The site underlines it in
+  place; the validator fails if it can't be found.
+- `check` names the official source and exactly what to confirm there.
 - Code that must run is fenced as ```python run (or ```sql run). The validator executes it.
 - Deliberately broken code is fenced as ```python broken <ExceptionName>, e.g.
   ```python broken TypeError. The validator checks that it raises exactly that exception, so a
@@ -88,9 +100,17 @@ meta.json:
 Files per exercise type:
 | type | files |
 |---|---|
-| `code`, `bug_hunt` | meta.json, starter.py, tests.py, solution.py, hints.json |
-| `sql` | meta.json, seed.sql, starter.sql, solution.sql, tests.json, hints.json |
+| `code`, `bug_hunt` | meta.json, instructions.md, starter.py, tests.py, solution.py, hints.json |
+| `sql` | meta.json, instructions.md, seed.sql, starter.sql, solution.sql, tests.json, hints.json |
 | `local` | meta.json (with `checklist`), instructions.md |
+
+## instructions.md
+Every exercise has one. It's the scenario, and it replaces the lesson text on the left when
+Sean opens the exercise (see TEACHING_STYLE.md, "Exercises"). Short Markdown:
+- The situation in PokeTeam: what's being built, or what a user reported.
+- What "done" looks like: the behaviour the tests check, in plain words.
+- For a bug hunt: the symptom and the expected behaviour. Never the cause or the fix.
+- Not the answer, and not a restatement of the lesson.
 
 `sql` meta.json uses `"runtime": "pglite"` and has no `packages`. `local` meta.json uses
 `"runtime": "local"` and lists what Sean ticks off when he's done:

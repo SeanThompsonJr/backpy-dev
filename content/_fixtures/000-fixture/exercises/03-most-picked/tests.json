@@ -1,7 +1,0 @@
-{
-  "checks": [
-    { "kind": "same_columns", "message": "The result should have two columns, pokemon and picks. A column's name comes from the expression or its alias." },
-    { "kind": "row_count", "message": "Each Pokémon should appear once. Which clause turns many rows with the same value into one row?" },
-    { "kind": "same_rows", "ordered": true, "message": "The counts or the order are off. Sorting by more than one column breaks ties: which column decides first?" }
-  ]
-}

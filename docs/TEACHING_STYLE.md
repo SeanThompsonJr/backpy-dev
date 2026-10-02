@@ -1,8 +1,10 @@
 # Teaching style: how every backpy lesson teaches
 
 ## The learner
-- Sean: self-taught Python backend developer. Prior Java/Spring Boot background
-  (use Java comparisons when they genuinely help; treat Python as a context switch, not a restart).
+- Sean: self-taught Python backend developer.
+- Never compare to Java or any other language Sean isn't using now. He used Java long ago
+  and doesn't remember its concepts, so a comparison adds a second thing to decode.
+  Teach every concept on its own terms, in Python (and SQL where SQL is the topic).
 - Learns best by example and by doing: show the real thing, then make him do it.
 - Running project: PokeTeam Builder (a FastAPI app for building Pokémon teams).
   Use Pokémon/PokeTeam examples in worked examples and exercises where natural. Don't force it.
@@ -32,6 +34,17 @@ backpy uses AI to explain, never to do the exercise for him.
   what goes wrong.
 - Short sections. No filler, no motivational padding.
 - Modern practice only (2026). Library and version rules live in content/_registry/conventions.json.
+- Stay on topic. Every code block and exercise serves this lesson's concept. Use SQL only in
+  lessons where SQL is the subject or genuinely part of the concept (e.g. a data-layer lesson),
+  never as a side preview in a Python lesson. The same goes for any other tool or language.
+
+## Exercises
+- **Bug hunts wherever possible.** If the concept has a common mistake, at least one exercise
+  is a bug hunt that plants that mistake. Real jobs are mostly reading and fixing code.
+- **Every exercise is a scenario.** Its instructions.md (shown on the left when Sean opens the
+  exercise) sets up a realistic PokeTeam situation: what's being built, or what a user
+  reported and what should happen instead. A bug hunt describes the symptom, never the cause.
+- Plain `code` exercises are for when there's nothing natural to break: building something new.
 
 ## Five questions (reuse them everywhere)
 When a lesson discusses failure modes, frame them with these:

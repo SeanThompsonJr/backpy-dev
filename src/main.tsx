@@ -9,7 +9,6 @@ import './styles/tokens.css'
 import './styles/app.css'
 import { App } from './App'
 import { Home } from './routes/Home'
-import { LessonPage } from './routes/LessonPage'
 
 const router = createHashRouter([
   {
@@ -17,7 +16,11 @@ const router = createHashRouter([
     element: <App />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'lesson/:id', element: <LessonPage /> },
+      {
+        path: 'lesson/:id',
+        // Editor and Markdown libraries load only when a lesson opens.
+        lazy: () => import('./routes/LessonPage').then((m) => ({ Component: m.LessonPage })),
+      },
     ],
   },
 ])

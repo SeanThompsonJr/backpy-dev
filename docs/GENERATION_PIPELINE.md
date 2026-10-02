@@ -29,8 +29,9 @@ not remembered from a previous chat.
    and checks the teaching style. Findings go in REVIEW.md. Fix every must-fix item, then
    re-validate.
 5. **Unverifiable claims**: any claim the reviewer can't confirm against an official source is
-   either removed or listed in the lesson's `unverified_claims`. The site shows these as a
-   small "verify this" note. Nothing uncertain is presented as fact.
+   either removed or listed in the lesson's `unverified_claims`, as the exact quote from the
+   lesson plus what to check and where (format in LESSON_FORMAT.md). The site underlines each
+   quote in place and lists them in a "verify this" note. Nothing uncertain is presented as fact.
 6. **Close the section**: add new concepts to concepts.json, write SUMMARY.md (what was
    taught, exact terms and conventions used), then commit.
 
@@ -49,6 +50,8 @@ not remembered from a previous chat.
   in this one. A concept used before it's taught is an error.
 - Conventions: no banned imports or patterns (e.g. python-jose, passlib, requests in
   async lessons, SQLAlchemy 1.x query style).
+- Every `unverified_claims` quote appears word for word in the lesson's prose.
+- No comparisons to Java: the word "Java" doesn't appear in lesson text (TEACHING_STYLE.md).
 
 ## reference/ rules
 reference/ holds material Sean already has access to (course notes, outlines, examples).

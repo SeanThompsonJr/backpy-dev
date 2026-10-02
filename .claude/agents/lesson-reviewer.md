@@ -25,3 +25,6 @@ Check:
 
 Output a REVIEW.md with sections: Must fix, Should fix, Unverifiable claims, Coverage gaps.
 Each item: file, the exact problem, the correction, the source. Be specific. No praise.
+For each unverifiable claim, give the `quote` (copied word for word from the lesson prose)
+and the `check` (which official source to look in and exactly what to confirm there), in the
+form the lesson's `unverified_claims` front matter uses (see LESSON_FORMAT.md).

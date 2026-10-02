@@ -16,6 +16,17 @@
   --err: #f27f82;
   --on-yellow: #1a1606;
 
+  /* Code: one set of syntax colors for lesson code blocks and the editor */
+  --code-bg: #121b27;
+  --code-line: #182333;
+  --selection: #2c4466;
+  --syn-keyword: #82b4e6;  /* blue: def, if, return, SELECT */
+  --syn-function: #f4c542; /* yellow: names being defined or called */
+  --syn-string: #a9d48c;
+  --syn-number: #f0a875;
+  --syn-literal: #e4a3cc;  /* True, None, self, built-ins */
+  --syn-comment: #8494ab;
+
   --font-ui: 'Schibsted Grotesk Variable', system-ui, sans-serif;
   --font-read: 'Source Serif 4 Variable', Georgia, serif;
   --font-code: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;

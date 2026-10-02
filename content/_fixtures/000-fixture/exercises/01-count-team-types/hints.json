@@ -1,7 +1,0 @@
-{
-  "hints": [
-    "A dict can count things: the type is the key and the count is the value. Think about what has to be true before you can add 1 to a key.",
-    "A common mistake is assuming the key already exists. The first time you meet a type there's nothing to add 1 to yet."
-  ],
-  "solution_explanation": "count_types walks the team once. dict.get(key, 0) returns 0 for a type it hasn't seen yet, so the same line handles the first and every later sighting. print_roster calls print once per member, and print adds the newline."
-}

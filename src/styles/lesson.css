@@ -1,0 +1,499 @@
+/* Lesson page: text on the left, work on the right (stacked below 900px). */
+
+.lesson-page-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: calc(100dvh - 56px);
+}
+.lesson-page-split > * {
+  min-height: 0;
+}
+
+.lesson-text-pane {
+  /* Positioned so absolutely placed children (e.g. screen-reader-only text) stay inside the
+     scrolling pane instead of stretching the whole page. */
+  position: relative;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.lesson-text {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) var(--space-8);
+}
+.lesson-page-single .lesson-text {
+  max-width: 72ch;
+}
+
+.lesson-head .crumb {
+  margin-bottom: var(--space-3);
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+.lesson-head h1 {
+  font-size: var(--step-4);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.lesson-meta {
+  margin-top: var(--space-3);
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+
+/* ---------- Verify-this note ---------- */
+
+.verify-note {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--py-yellow-dim);
+  border-radius: var(--radius-m);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+.verify-note-icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--py-yellow);
+}
+.verify-note strong {
+  color: var(--text);
+}
+.verify-list {
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-5);
+}
+.verify-list li + li {
+  margin-top: var(--space-4);
+}
+.verify-quote {
+  color: var(--text);
+  font-family: var(--font-read);
+  font-style: italic;
+}
+.verify-where {
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+.verify-check {
+  margin-top: var(--space-1);
+}
+
+.link-button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--py-blue);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* An unverified claim, underlined where it appears in the lesson */
+mark.claim {
+  padding: 0 1px;
+  background: color-mix(in srgb, var(--py-yellow) 10%, transparent);
+  color: inherit;
+  text-decoration: underline dashed var(--py-yellow);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  cursor: help;
+}
+mark.claim:focus {
+  outline: none;
+  animation: claim-found 1.6s var(--ease-out);
+}
+@keyframes claim-found {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--py-yellow) 38%, transparent);
+  }
+}
+
+/* ---------- Left side: lesson or the open exercise's scenario ---------- */
+
+.left-switch {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-5) 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--ink);
+}
+.left-switch-tab {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+.left-switch-tab:hover {
+  color: var(--text);
+}
+.left-switch-tab[aria-selected='true'] {
+  border-bottom-color: var(--py-yellow);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.exercise-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ---------- Lesson prose ---------- */
+
+.prose {
+  margin-top: var(--space-6);
+  font-family: var(--font-read);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose h2 {
+  margin: var(--space-7) 0 var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--step-3);
+}
+.prose h3 {
+  margin: var(--space-6) 0 var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--step-2);
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 1em;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose li + li {
+  margin-top: 0.3em;
+}
+.prose strong {
+  font-weight: 650;
+}
+.prose blockquote {
+  margin: 0 0 1em;
+  padding: var(--space-1) 0 var(--space-1) var(--space-4);
+  border-left: 3px solid var(--rule);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+.prose :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-s);
+  background: var(--panel-strong);
+  font-size: 0.84em;
+}
+.prose-compact {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+/* ---------- Code blocks in lessons ---------- */
+
+.code-block {
+  margin: 1.5em 0;
+  border-radius: var(--radius-m);
+  background: var(--code-bg);
+}
+.code-block-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3) 0 var(--space-5);
+  min-height: 28px;
+}
+.code-block pre {
+  margin: 0;
+  padding: var(--space-1) var(--space-5) var(--space-4);
+  overflow-x: auto;
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  scrollbar-width: thin;
+}
+.code-block pre code {
+  font-size: inherit;
+}
+.code-block-lang {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+}
+.code-block-broken {
+  border-left: 3px solid var(--err);
+}
+.code-block-caption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-1);
+  color: var(--err);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* highlight.js classes, mapped to the shared syntax tokens */
+.hljs-keyword,
+.hljs-meta .hljs-keyword {
+  color: var(--syn-keyword);
+}
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-title {
+  color: var(--syn-function);
+}
+.hljs-string,
+.hljs-regexp {
+  color: var(--syn-string);
+}
+.hljs-number {
+  color: var(--syn-number);
+}
+.hljs-literal,
+.hljs-built_in,
+.hljs-type,
+.hljs-variable.language_ {
+  color: var(--syn-literal);
+}
+.hljs-comment {
+  color: var(--syn-comment);
+  font-style: italic;
+}
+
+/* ---------- Pager ---------- */
+
+.lesson-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--rule);
+}
+.pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  color: var(--text);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+.pager-link:hover {
+  color: var(--py-blue);
+}
+.pager-next {
+  text-align: right;
+}
+.pager-dir {
+  color: var(--text-faint);
+  font-size: var(--step--1);
+}
+
+/* ---------- Work pane ---------- */
+
+.work-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--rule);
+  background: var(--code-bg);
+}
+
+.exercise-tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3) 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--rule);
+  background: var(--ink);
+  scrollbar-width: none;
+}
+.exercise-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+.exercise-tab:hover {
+  color: var(--text);
+}
+.exercise-tab[aria-selected='true'] {
+  border-bottom-color: var(--py-yellow);
+  color: var(--text);
+  font-weight: 600;
+}
+.exercise-tab-num {
+  color: var(--text-faint);
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+}
+
+.exercise-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.editor-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-top: 1px solid var(--rule);
+}
+.code-editor {
+  height: 100%;
+}
+
+.work-toolbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--rule);
+  background: var(--ink);
+}
+.editor-help {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--step--1);
+}
+
+.output-pane {
+  flex: 0 0 32%;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+}
+.output-empty {
+  color: var(--text-faint);
+  font-family: var(--font-ui);
+}
+
+.local-exercise {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-5) var(--space-6);
+}
+
+/* The scenario next to the editor is only for narrow screens (see the media query below). */
+.exercise-brief-inline {
+  display: none;
+}
+.checklist {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  border: 0;
+}
+.checklist legend {
+  margin-bottom: var(--space-2);
+  font-weight: 650;
+}
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+.checklist-item input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--py-yellow);
+}
+
+/* ---------- Narrow screens: stack text above work ---------- */
+
+@media (max-width: 899px) {
+  .lesson-page-split {
+    display: block;
+    height: auto;
+  }
+  .lesson-text {
+    padding: var(--space-6) var(--space-4) var(--space-7);
+  }
+  .lesson-head h1 {
+    font-size: var(--step-3);
+  }
+  .prose {
+    font-size: 1.0625rem;
+  }
+  .code-block {
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    border-radius: 0;
+  }
+  .work-pane {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .exercise-tab {
+    padding: 0 var(--space-3);
+  }
+  /* Phones: the left side always shows the lesson; each scenario sits above its editor. */
+  .left-switch,
+  .left-view-exercise {
+    display: none;
+  }
+  .left-view-lesson[hidden] {
+    display: block;
+  }
+  .exercise-brief-inline {
+    display: block;
+    padding: var(--space-4) var(--space-4) var(--space-3);
+  }
+  .exercise-brief-inline h2 {
+    margin-bottom: var(--space-2);
+    font-size: var(--step-1);
+  }
+  .editor-frame {
+    flex: none;
+    height: 55dvh;
+    min-height: 300px;
+  }
+  .output-pane {
+    flex: none;
+    min-height: 160px;
+  }
+  .editor-help {
+    display: none;
+  }
+}

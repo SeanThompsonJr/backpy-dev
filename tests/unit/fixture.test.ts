@@ -46,7 +46,21 @@ describe('fixture lesson', () => {
     expect(byType.sql.seed && byType.sql.starter && byType.sql.solution).toBeTruthy()
     expect(byType.sql.sqlTests?.checks.map((c) => c.kind)).toEqual(['same_columns', 'row_count', 'same_rows'])
     expect(byType.local.meta.type === 'local' && byType.local.meta.checklist.length).toBeGreaterThan(0)
-    expect(byType.local.instructions).toBeTruthy()
+    for (const ex of fixture.lesson.exercises) expect(ex.instructions, ex.folder).toBeTruthy()
+  })
+
+  it('resolves each unverified claim to the section its quote is in', () => {
+    expect(fixture.lesson.claims).toEqual([
+      {
+        quote: 'Postgres evaluates a column default for every inserted row',
+        check: expect.stringContaining('PostgreSQL documentation'),
+        section: 'The concept',
+      },
+    ])
+  })
+
+  it('never compares to Java', () => {
+    expect(fixture.lesson.body).not.toMatch(/\bJava\b/)
   })
 })
 
@@ -88,8 +102,8 @@ describe('lesson parser catches format mistakes', () => {
     )
   })
   it('a missing exercise file', () => {
-    expect(mutate((f) => delete f[ex('01-count-team-types', 'solution.py')])).toMatch(
-      /01-count-team-types\/solution\.py: missing \(required for code exercises\)/,
+    expect(mutate((f) => delete f[ex('01-make-a-team', 'solution.py')])).toMatch(
+      /01-make-a-team\/solution\.py: missing \(required for code exercises\)/,
     )
   })
   it('a bug hunt without bug_description', () => {
@@ -98,7 +112,7 @@ describe('lesson parser catches format mistakes', () => {
     )
   })
   it('tests.py that does not import from main', () => {
-    const path = ex('01-count-team-types', 'tests.py')
+    const path = ex('01-make-a-team', 'tests.py')
     expect(mutate((f) => (f[path] = f[path].replace('from main import *', '')))).toMatch(/from main import \*/)
   })
   it('a front matter id that does not match the folder number', () => {
@@ -107,8 +121,46 @@ describe('lesson parser catches format mistakes', () => {
     )
   })
   it('only one hint', () => {
-    expect(mutate((f) => editJson(f, ex('03-most-picked', 'hints.json'), (h) => h.hints.pop()))).toMatch(
-      /03-most-picked\/hints\.json: hints/,
+    expect(mutate((f) => editJson(f, ex('03-private-by-default', 'hints.json'), (h) => h.hints.pop()))).toMatch(
+      /03-private-by-default\/hints\.json: hints/,
+    )
+  })
+  it('an unverified claim whose quote is not in the lesson', () => {
+    expect(
+      mutate(
+        (f) =>
+          (f['lesson.md'] = f['lesson.md'].replace(
+            'evaluates a column default for every inserted row, so',
+            'runs a column default for each inserted row, so',
+          )),
+      ),
+    ).toMatch(/unverified_claims quote not found word for word.*"Postgres evaluates a column default for every inserted row"/)
+  })
+  it('an unverified claim given as a bare string instead of quote + check', () => {
+    expect(
+      mutate(
+        (f) =>
+          (f['lesson.md'] = f['lesson.md'].replace(
+            /unverified_claims:\n[\s\S]*?\n---/,
+            'unverified_claims:\n  - "something to check"\n---',
+          )),
+      ),
+    ).toMatch(/unverified_claims\.0/)
+  })
+  it('a quote that crosses bold and code formatting still matches', () => {
+    expect(
+      mutate(
+        (f) =>
+          (f['lesson.md'] = f['lesson.md'].replace(
+            'quote: "Postgres evaluates a column default for every inserted row"',
+            'quote: "Python creates the default once, when def runs, not each time"',
+          )),
+      ),
+    ).toBe('')
+  })
+  it('a code exercise without its instructions.md scenario', () => {
+    expect(mutate((f) => delete f[ex('01-make-a-team', 'instructions.md')])).toMatch(
+      /01-make-a-team\/instructions\.md: missing \(required for code exercises\)/,
     )
   })
   it('windows line endings parse the same as unix ones', () => {

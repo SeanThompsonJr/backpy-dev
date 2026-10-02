@@ -2,6 +2,7 @@
 // Errors are collected (never thrown) so the validator can report every problem at once.
 import { parse as parseYaml } from 'yaml'
 import type { z } from 'zod'
+import { locateQuote, proseBlocks } from './claims'
 import {
   EXERCISE_FILES,
   LESSON_SECTIONS,
@@ -54,6 +55,13 @@ export interface Exercise {
   instructions?: string
 }
 
+export interface UnverifiedClaim {
+  quote: string
+  check: string
+  /** The "## " section the quote is in ('' if it couldn't be found) */
+  section: string
+}
+
 export interface LoadedLesson {
   /** Lesson folder name, e.g. "013-functions" */
   folder: string
@@ -62,6 +70,7 @@ export interface LoadedLesson {
   body: string
   sections: LessonSection[]
   blocks: CodeBlock[]
+  claims: UnverifiedClaim[]
   quiz?: Quiz
   exercises: Exercise[]
 }
@@ -199,6 +208,21 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
     })
   }
 
+  const claims: UnverifiedClaim[] = []
+  if (fm.success && fm.data.unverified_claims.length) {
+    const prose = proseBlocks(split.body)
+    for (const { quote, check } of fm.data.unverified_claims) {
+      const section = locateQuote(quote, prose)
+      if (section === undefined) {
+        issues.push({
+          file: at('lesson.md') + ' (front matter)',
+          message: `unverified_claims quote not found word for word in one paragraph of the lesson: "${quote}"`,
+        })
+      }
+      claims.push({ quote, check, section: section ?? '' })
+    }
+  }
+
   const quiz = parseJson(at('quiz.json'), files['quiz.json'], quizSchema, issues)
   if (files['quiz.json'] === undefined) issues.push({ file: at('quiz.json'), message: 'missing' })
 
@@ -225,7 +249,7 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
       if (!required.includes(name)) issues.push({ file: at(exPath(name)), message: `not part of a ${meta.type} exercise` })
     }
 
-    const exercise: Exercise = { folder: exFolder, meta }
+    const exercise: Exercise = { folder: exFolder, meta, instructions: get('instructions.md') }
     if (meta.type === 'code' || meta.type === 'bug_hunt') {
       exercise.starter = get('starter.py')
       exercise.tests = get('tests.py')
@@ -238,8 +262,6 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
       exercise.starter = get('starter.sql')
       exercise.solution = get('solution.sql')
       exercise.sqlTests = parseJson(at(exPath('tests.json')), get('tests.json'), sqlTestsSchema, issues)
-    } else {
-      exercise.instructions = get('instructions.md')
     }
     if (meta.type !== 'local') exercise.hints = parseJson(at(exPath('hints.json')), get('hints.json'), hintsSchema, issues)
     exercises.push(exercise)
@@ -253,7 +275,7 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
 
   if (!fm.success) return { issues }
   return {
-    lesson: { folder, frontMatter: fm.data, body: split.body, sections: scan.sections, blocks: scan.blocks, quiz, exercises },
+    lesson: { folder, frontMatter: fm.data, body: split.body, sections: scan.sections, blocks: scan.blocks, claims, quiz, exercises },
     issues,
   }
 }

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Two of the parameters are optional. Think about which default values are safe to share between calls and which aren't.",
+    "The likely mistake is giving members a default of []. That list is made once, when def runs, so every team without members would share it."
+  ],
+  "solution_explanation": "members defaults to None, and the function builds a new list only when it's None, so each team gets its own roster while a list passed in is used as-is. public can default to False directly, because a boolean can't be changed in place. describe_team picks the word for the visibility and prints the line with an f-string."
+}

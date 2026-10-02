@@ -13,7 +13,14 @@ export const frontMatterSchema = z.strictObject({
   concepts_introduced: z.array(conceptId),
   concepts_used: z.array(conceptId),
   explain_back: nonEmpty,
-  unverified_claims: z.array(nonEmpty),
+  unverified_claims: z.array(
+    z.strictObject({
+      /** Copied word for word from the lesson prose */
+      quote: nonEmpty,
+      /** Which official source to check, and exactly what to confirm there */
+      check: nonEmpty,
+    }),
+  ),
 })
 export type FrontMatter = z.infer<typeof frontMatterSchema>
 
@@ -82,8 +89,8 @@ export type SqlTests = z.infer<typeof sqlTestsSchema>
 
 /** Required files per exercise type (LESSON_FORMAT.md, "Files per exercise type"). */
 export const EXERCISE_FILES: Record<ExerciseType, readonly string[]> = {
-  code: ['meta.json', 'starter.py', 'tests.py', 'solution.py', 'hints.json'],
-  bug_hunt: ['meta.json', 'starter.py', 'tests.py', 'solution.py', 'hints.json'],
-  sql: ['meta.json', 'seed.sql', 'starter.sql', 'solution.sql', 'tests.json', 'hints.json'],
+  code: ['meta.json', 'instructions.md', 'starter.py', 'tests.py', 'solution.py', 'hints.json'],
+  bug_hunt: ['meta.json', 'instructions.md', 'starter.py', 'tests.py', 'solution.py', 'hints.json'],
+  sql: ['meta.json', 'instructions.md', 'seed.sql', 'starter.sql', 'solution.sql', 'tests.json', 'hints.json'],
   local: ['meta.json', 'instructions.md'],
 }

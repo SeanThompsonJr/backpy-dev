@@ -1,19 +1,22 @@
 ---
 id: 0
-title: "Fixture: default arguments that remember too much"
+title: "Fixture: default values in Python and in Postgres"
 section: Fixtures
 sources: []
-concepts_introduced: [default-argument, mutable-default-argument]
-concepts_used: [default-argument, mutable-default-argument]
-explain_back: "Why does a function with a list as its default value seem to remember earlier calls? Answer without code."
+concepts_introduced: [default-argument, mutable-default-argument, column-default]
+concepts_used: [default-argument, mutable-default-argument, column-default]
+explain_back: "A Python default argument and a Postgres column default both fill in a value nobody gave. What's the difference in when each one is created? Answer without code."
 unverified_claims:
-  - "This fixture claim exists so the site has a 'verify this' note to render."
+  - quote: "Postgres evaluates a column default for every inserted row"
+    check: "PostgreSQL documentation, CREATE TABLE, the DEFAULT clause: confirm the default expression is evaluated each time a row is inserted without a value for that column."
 ---
 ## Why this matters
 
-PokeTeam builds teams one Pokémon at a time. If the function that starts a new team quietly
-reuses the last team's list, two users end up sharing a roster. Nothing crashes. The data is
-just wrong, and in a backend that means one user sees another user's data.
+PokeTeam fills in values nobody typed. A new team starts with an empty roster, and a new
+row in the database gets its own id and starts private. Those defaults live in two places,
+Python and Postgres, and they don't behave the same way. Get it wrong and two users share
+one roster. Nothing crashes. The data is just wrong, and in a backend that means one user
+sees another user's data.
 
 This lesson is the **fixture**: a complete example lesson used to build and test the site.
 It uses every feature in LESSON_FORMAT.md once.
@@ -21,12 +24,9 @@ It uses every feature in LESSON_FORMAT.md once.
 ## The concept
 
 A **default argument** is the value a parameter gets when the caller leaves it out.
-Python evaluates the default **once, when `def` runs**, not each time the function is called.
+Python creates the default **once, when `def` runs**, not each time the function is called.
 For numbers and strings that never matters, because they can't change. For a list or a dict
 it matters a lot: every call that relies on the default gets the *same* object.
-
-If you know Java: there's no equivalent, because Java has no default arguments at all. The
-closest mental model is a `static` field that every call shares.
 
 ```python run
 def log_battle(event, log=[]):
@@ -39,10 +39,28 @@ print(log_battle("onix fainted"))
 
 The second call printed both events. The default list was created once and kept growing.
 
+A **column default** is the value Postgres stores when an `INSERT` leaves a column out.
+Postgres evaluates a column default for every inserted row, so a default like
+`gen_random_uuid()` gives each new team its own id:
+
+```sql run
+CREATE TABLE teams (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name text NOT NULL
+);
+INSERT INTO teams (name) VALUES ('Rain Dance'), ('Sun Room');
+```
+
+```sql run
+SELECT count(DISTINCT id) AS different_ids FROM teams;
+```
+
+Two rows, two different ids. Same idea as a Python default, opposite timing.
+
 ## Worked example
 
-The fix is to use `None` as a marker meaning "the caller didn't pass one", then build a
-fresh object inside the function, where it runs on every call.
+The Python fix is to use `None` as a marker meaning "the caller didn't pass one", then
+build a fresh object inside the function body, which runs on every call.
 
 ```python run
 def log_battle(event, log=None):
@@ -55,17 +73,7 @@ print(log_battle("pikachu used thunderbolt"))
 print(log_battle("onix fainted"))
 ```
 
-Lessons can run SQL too. SQL blocks share one database per lesson, so this block creates a
-table and the next one queries it:
-
-```sql run
-CREATE TABLE picks (team text NOT NULL, pokemon text NOT NULL);
-INSERT INTO picks VALUES ('Rain', 'pelipper'), ('Rain', 'barraskewda'), ('Sun', 'torkoal');
-```
-
-```sql run
-SELECT team, count(*) AS members FROM picks GROUP BY team ORDER BY team;
-```
+Each call now prints a log with one event in it.
 
 ## What breaks
 
@@ -86,6 +94,6 @@ default list, every failed or half-finished call can leave items in the list for
 
 ## Check yourself
 
-- When is a default value created?
-- Which kinds of default values are safe, and which aren't?
+- When is a Python default created, and when is a Postgres column default evaluated?
+- Which kinds of Python default values are safe, and which aren't?
 - Why is `None` a good marker for "not passed"?
