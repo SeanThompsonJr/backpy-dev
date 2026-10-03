@@ -73,6 +73,23 @@ function Pager({ id }: { id: number }) {
 
 type LeftView = 'lesson' | 'exercise'
 
+// Whether the editor side is hidden is a per-browser preference, remembered across lessons.
+const COLLAPSED_KEY = 'backpy.editorCollapsed'
+function loadCollapsed() {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+function saveCollapsed(collapsed: boolean) {
+  try {
+    localStorage.setItem(COLLAPSED_KEY, collapsed ? '1' : '0')
+  } catch {
+    // Not remembered; the page still works.
+  }
+}
+
 export function LessonView({ entry }: { entry: LessonEntry }) {
   const { frontMatter: fm, body, exercises, claims } = entry.lesson
   const isFixture = entry.sectionDir === '_fixtures'
@@ -81,6 +98,11 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
 
   const [selected, setSelected] = useState(0)
   const [leftView, setLeftView] = useState<LeftView>('lesson')
+  const [editorCollapsed, setEditorCollapsed] = useState(loadCollapsed)
+  const changeCollapsed = (collapsed: boolean) => {
+    setEditorCollapsed(collapsed)
+    saveCollapsed(collapsed)
+  }
   const textPane = useRef<HTMLElement>(null)
   const ids = useId()
   const exercise = exercises[selected]
@@ -135,7 +157,12 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   )
 
   return (
-    <div className={`lesson-page ${exercises.length ? 'lesson-page-split' : 'lesson-page-single'}`} data-testid="lesson-page">
+    <div
+      className={`lesson-page ${exercises.length ? 'lesson-page-split' : 'lesson-page-single'}${
+        exercises.length && editorCollapsed ? ' lesson-page-collapsed' : ''
+      }`}
+      data-testid="lesson-page"
+    >
       <article ref={textPane} className="lesson-text-pane" data-testid="lesson-text" data-view={leftView}>
         {exercise && (
           <div role="tablist" aria-label="Left side shows" className="left-switch">
@@ -222,6 +249,8 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
       {exercise && (
         <ExercisePanel
           lessonFolder={entry.lesson.folder}
+          collapsed={editorCollapsed}
+          onCollapsedChange={changeCollapsed}
           exercises={exercises}
           selected={selected}
           onSelect={selectExercise}

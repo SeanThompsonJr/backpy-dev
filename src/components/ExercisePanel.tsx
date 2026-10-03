@@ -1,5 +1,17 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import { Bug, CircleCheck, Code, Database, FileCode, Play, RotateCcw, Send, Terminal, type LucideIcon } from 'lucide-react'
+import {
+  Bug,
+  CircleCheck,
+  Code,
+  Database,
+  FileCode,
+  PanelRightClose,
+  Play,
+  RotateCcw,
+  Send,
+  Terminal,
+  type LucideIcon,
+} from 'lucide-react'
 import { gradeTestRun } from '../../shared/grade'
 import type { ExerciseType } from '../../shared/schema'
 import type { Exercise } from '../../shared/lesson-parse'
@@ -16,6 +28,7 @@ import {
   vscodeSyncSupported,
   writeFile,
 } from '../runtime/vscode-folder'
+import { EditorRail } from './EditorRail'
 import { VsCodeBanner, type SyncedFile } from './VsCodeBanner'
 import { CodeEditor } from './CodeEditor'
 import { NEW_PROGRESS, type ExerciseProgress } from './learning'
@@ -32,9 +45,18 @@ export const TYPE_LABEL: Record<ExerciseType, string> = {
 export const TYPE_ICON: Record<ExerciseType, LucideIcon> = { code: Code, bug_hunt: Bug, sql: Database, local: Terminal }
 
 const isPythonExercise = (e: Exercise) => e.meta.type === 'code' || e.meta.type === 'bug_hunt'
-const runShortcut = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? 'Cmd+Enter' : 'Ctrl+Enter'
+const runShortcut =
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? 'Cmd+Enter' : 'Ctrl+Enter'
 
-function Checklist({ items, done, onChange }: { items: string[]; done: boolean[]; onChange: (done: boolean[]) => void }) {
+function Checklist({
+  items,
+  done,
+  onChange,
+}: {
+  items: string[]
+  done: boolean[]
+  onChange: (done: boolean[]) => void
+}) {
   return (
     <fieldset className="checklist">
       <legend>Done when</legend>
@@ -146,9 +168,7 @@ function CodeExercise(props: CodeExerciseProps) {
             {vscodeError}
           </p>
         )}
-        <p className="editor-help">
-          {isPython && `${runShortcut} runs your code. `}Esc then Tab leaves the editor.
-        </p>
+        <p className="editor-help">{isPython && `${runShortcut} runs your code. `}Esc then Tab leaves the editor.</p>
       </div>
       {isPython ? (
         <OutputPane
@@ -169,6 +189,9 @@ function CodeExercise(props: CodeExerciseProps) {
 interface Props {
   /** Lesson folder name, used for the VS Code sync path */
   lessonFolder: string
+  /** The editor side is hidden to a rail, so the lesson can use the full width */
+  collapsed: boolean
+  onCollapsedChange: (collapsed: boolean) => void
   exercises: Exercise[]
   selected: number
   onSelect: (index: number) => void
@@ -180,7 +203,19 @@ interface Props {
 }
 
 export function ExercisePanel(props: Props) {
-  const { lessonFolder, exercises, selected, onSelect, progress, onSubmitted, onShowHint, onShowSolution } = props
+  const {
+    lessonFolder,
+    collapsed,
+    onCollapsedChange,
+    exercises,
+    selected,
+    onSelect,
+    progress,
+    onSubmitted,
+    onShowHint,
+    onShowSolution,
+  } = props
+  const pythonStatus = usePythonStatus()
   const [code, setCode] = useState<Record<string, string>>(() =>
     Object.fromEntries(exercises.map((e) => [e.folder, e.starter ?? ''])),
   )
@@ -319,7 +354,8 @@ export function ExercisePanel(props: Props) {
         const withError = outcome.error ? appendChunk(s, { stream: 'stderr', text: outcome.error + '\n' }) : s
         return { ...withError, phase: outcome.ok ? 'finished' : 'error', seconds: outcome.seconds }
       }
-      if (outcome.kind === 'timeout') return { ...s, phase: 'timeout', timeoutDuring: outcome.during, seconds: outcome.seconds }
+      if (outcome.kind === 'timeout')
+        return { ...s, phase: 'timeout', timeoutDuring: outcome.during, seconds: outcome.seconds }
       if (outcome.kind === 'unavailable') return { ...s, phase: 'unavailable', message: outcome.message }
       return s
     })
@@ -338,7 +374,10 @@ export function ExercisePanel(props: Props) {
     }
     if (outcome.kind === 'finished') {
       // The worker failed before any checks could run (e.g. a package didn't load).
-      updateRun(folder, (s) => ({ ...appendChunk(s, { stream: 'stderr', text: (outcome.error ?? '') + '\n' }), phase: 'error' }))
+      updateRun(folder, (s) => ({
+        ...appendChunk(s, { stream: 'stderr', text: (outcome.error ?? '') + '\n' }),
+        phase: 'error',
+      }))
       return
     }
     if (outcome.kind === 'timeout') {
@@ -377,86 +416,122 @@ export function ExercisePanel(props: Props) {
   const current = progressOf(exercise)
   const run = runs[exercise.folder] ?? IDLE
 
+  const bodyId = `${baseId}-body`
+  // Run and Submit from the rail open the editor side, so the result is visible.
+  const expandAnd = (action: () => void) => () => {
+    onCollapsedChange(false)
+    action()
+  }
+
   return (
-    <section className="work-pane" aria-label="Exercises">
-      {exercises.length > 1 && (
-        <div role="tablist" aria-label="Exercises" className="exercise-tabs" onKeyDown={onTabKey}>
-          {exercises.map((ex, i) => (
-            <button
-              key={ex.folder}
-              ref={(el) => {
-                tabs.current[i] = el
-              }}
-              role="tab"
-              type="button"
-              id={`${baseId}-tab-${i}`}
-              aria-selected={i === selected}
-              aria-controls={`${baseId}-panel`}
-              tabIndex={i === selected ? 0 : -1}
-              className="exercise-tab"
-              onClick={() => onSelect(i)}
-            >
-              <span className="exercise-tab-num">{i + 1}</span>
-              {TYPE_LABEL[ex.meta.type]}
-              {progressOf(ex).solved && (
-                <>
-                  <CircleCheck size={14} className="exercise-tab-solved" aria-hidden="true" />
-                  <span className="visually-hidden"> (solved)</span>
-                </>
-              )}
-            </button>
-          ))}
-        </div>
+    <section className="work-pane" aria-label="Exercises" data-collapsed={collapsed}>
+      {collapsed && (
+        <EditorRail
+          panelId={bodyId}
+          showRunButtons={isPythonExercise(exercise)}
+          busy={pythonStatus === 'running' || pythonStatus === 'failed'}
+          run={run}
+          linkedPath={links[exercise.folder]?.path}
+          onExpand={() => onCollapsedChange(false)}
+          onRun={expandAnd(() => runCode(exercise))}
+          onSubmit={expandAnd(() => submitCode(exercise))}
+        />
       )}
-      <div
-        role={exercises.length > 1 ? 'tabpanel' : undefined}
-        id={`${baseId}-panel`}
-        aria-labelledby={exercises.length > 1 ? `${baseId}-tab-${selected}` : undefined}
-        className="exercise-panel"
-        data-testid="exercise-panel"
-        data-type={exercise.meta.type}
-      >
-        {/* On narrow screens the lesson text is far above, so the scenario and hints sit here instead. */}
-        <div className="exercise-brief-inline" data-testid="exercise-brief-inline">
-          <h2>{exercise.meta.title}</h2>
-          <Markdown className="prose prose-compact prose-instructions">{exercise.instructions ?? ''}</Markdown>
-          <StuckPanel
-            exercise={exercise}
-            progress={current}
-            onShowHint={(n) => onShowHint(exercise.folder, n)}
-            onShowSolution={() => onShowSolution(exercise.folder)}
-          />
+      {/* Stays mounted while hidden, so edits, output and VS Code syncing carry on. */}
+      <div id={bodyId} className="work-pane-body" hidden={collapsed}>
+        <div className="work-head">
+          {exercises.length > 1 && (
+            <div role="tablist" aria-label="Exercises" className="exercise-tabs" onKeyDown={onTabKey}>
+              {exercises.map((ex, i) => (
+                <button
+                  key={ex.folder}
+                  ref={(el) => {
+                    tabs.current[i] = el
+                  }}
+                  role="tab"
+                  type="button"
+                  id={`${baseId}-tab-${i}`}
+                  aria-selected={i === selected}
+                  aria-controls={`${baseId}-panel`}
+                  tabIndex={i === selected ? 0 : -1}
+                  className="exercise-tab"
+                  onClick={() => onSelect(i)}
+                >
+                  <span className="exercise-tab-num">{i + 1}</span>
+                  {TYPE_LABEL[ex.meta.type]}
+                  {progressOf(ex).solved && (
+                    <>
+                      <CircleCheck size={14} className="exercise-tab-solved" aria-hidden="true" />
+                      <span className="visually-hidden"> (solved)</span>
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            className="btn btn-ghost btn-small hide-editor"
+            onClick={() => onCollapsedChange(true)}
+            aria-label="Hide editor"
+            title="Hide editor"
+            aria-expanded={true}
+            aria-controls={bodyId}
+          >
+            <PanelRightClose size={16} aria-hidden="true" />
+            <span className="hide-editor-label">Hide editor</span>
+          </button>
         </div>
-        {exercise.meta.type === 'local' ? (
-          <div className="local-exercise">
-            <Checklist
-              items={exercise.meta.checklist}
-              done={checks[exercise.folder] ?? []}
-              onChange={(done) => setChecks((c) => ({ ...c, [exercise.folder]: done }))}
+        <div
+          role={exercises.length > 1 ? 'tabpanel' : undefined}
+          id={`${baseId}-panel`}
+          aria-labelledby={exercises.length > 1 ? `${baseId}-tab-${selected}` : undefined}
+          className="exercise-panel"
+          data-testid="exercise-panel"
+          data-type={exercise.meta.type}
+        >
+          {/* On narrow screens the lesson text is far above, so the scenario and hints sit here instead. */}
+          <div className="exercise-brief-inline" data-testid="exercise-brief-inline">
+            <h2>{exercise.meta.title}</h2>
+            <Markdown className="prose prose-compact prose-instructions">{exercise.instructions ?? ''}</Markdown>
+            <StuckPanel
+              exercise={exercise}
+              progress={current}
+              onShowHint={(n) => onShowHint(exercise.folder, n)}
+              onShowSolution={() => onShowSolution(exercise.folder)}
             />
           </div>
-        ) : (
-          <CodeExercise
-            key={exercise.folder}
-            exercise={exercise}
-            code={code[exercise.folder]}
-            onChange={(v) => setCode((c) => ({ ...c, [exercise.folder]: v }))}
-            run={run}
-            onRun={() => runCode(exercise)}
-            onSubmit={() => submitCode(exercise)}
-            onReset={() => resetCode(exercise)}
-            onShowHint={() => onShowHint(exercise.folder, current.failedSubmits >= 2 ? 2 : 1)}
-            solved={current.solved}
-            link={links[exercise.folder]}
-            vscodeError={vscodeErrors[exercise.folder] || undefined}
-            folderPath={folderPath}
-            onStartSync={() => startSync(exercise)}
-            onStopSync={() => stopSync(exercise)}
-            onSavePath={(pasted) => savePath(exercise, pasted)}
-            onOpenInVsCode={() => openExerciseInVsCode(exercise)}
-            onChangeFolder={() => changeFolderFor(exercise)}
-          />
-        )}
+          {exercise.meta.type === 'local' ? (
+            <div className="local-exercise">
+              <Checklist
+                items={exercise.meta.checklist}
+                done={checks[exercise.folder] ?? []}
+                onChange={(done) => setChecks((c) => ({ ...c, [exercise.folder]: done }))}
+              />
+            </div>
+          ) : (
+            <CodeExercise
+              key={exercise.folder}
+              exercise={exercise}
+              code={code[exercise.folder]}
+              onChange={(v) => setCode((c) => ({ ...c, [exercise.folder]: v }))}
+              run={run}
+              onRun={() => runCode(exercise)}
+              onSubmit={() => submitCode(exercise)}
+              onReset={() => resetCode(exercise)}
+              onShowHint={() => onShowHint(exercise.folder, current.failedSubmits >= 2 ? 2 : 1)}
+              solved={current.solved}
+              link={links[exercise.folder]}
+              vscodeError={vscodeErrors[exercise.folder] || undefined}
+              folderPath={folderPath}
+              onStartSync={() => startSync(exercise)}
+              onStopSync={() => stopSync(exercise)}
+              onSavePath={(pasted) => savePath(exercise, pasted)}
+              onOpenInVsCode={() => openExerciseInVsCode(exercise)}
+              onChangeFolder={() => changeFolderFor(exercise)}
+            />
+          )}
+        </div>
       </div>
     </section>
   )

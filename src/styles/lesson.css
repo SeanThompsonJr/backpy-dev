@@ -4,6 +4,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   height: calc(100dvh - 56px);
+  transition: grid-template-columns 200ms var(--ease-out);
+}
+/* Editor hidden: the lesson takes the width, the editor side shrinks to a rail. */
+.lesson-page-collapsed {
+  grid-template-columns: minmax(0, 1fr) 64px;
 }
 .lesson-page-split > * {
   min-height: 0;
@@ -324,15 +329,114 @@ mark.claim:focus {
   background: var(--code-bg);
 }
 
-.exercise-tabs {
+.work-pane-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.work-pane-body[hidden] {
+  display: none;
+}
+.work-head {
   display: flex;
   flex: none;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-3) 0;
-  overflow-x: auto;
+  align-items: center;
+  min-height: 52px;
   border-bottom: 1px solid var(--rule);
   background: var(--ink);
+}
+.exercise-tabs {
+  display: flex;
+  flex: 1;
+  align-self: stretch;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3) 0;
+  overflow-x: auto;
   scrollbar-width: none;
+}
+.hide-editor {
+  flex: none;
+  margin: 0 var(--space-3) 0 auto;
+  border-color: transparent;
+}
+/* When the editor side is narrow, the button keeps its icon and gives the tabs the room. */
+.work-pane {
+  container-type: inline-size;
+}
+@container (max-width: 560px) {
+  .hide-editor-label {
+    display: none;
+  }
+}
+
+/* The collapsed editor side */
+.editor-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-3) 0;
+}
+.rail-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 52px;
+  min-height: 56px;
+  padding: var(--space-2) 2px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  transition: background-color 150ms var(--ease-out);
+}
+.rail-button:hover:not(:disabled) {
+  background: var(--panel);
+  color: var(--text);
+}
+.rail-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.rail-run {
+  border-color: var(--py-blue);
+  color: var(--py-blue);
+}
+.rail-run:hover:not(:disabled) {
+  color: var(--py-blue);
+}
+.rail-submit,
+.rail-submit:hover:not(:disabled) {
+  background: var(--py-yellow);
+  color: var(--on-yellow);
+}
+.rail-result,
+.rail-linked {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 36px;
+}
+.rail-result {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+}
+.rail-result-pass {
+  color: var(--ok);
+}
+.rail-result-fail {
+  color: var(--err);
+}
+.rail-linked {
+  color: var(--py-blue);
 }
 .exercise-tab {
   display: inline-flex;
@@ -882,6 +986,14 @@ mark.claim:focus {
   }
   .exercise-tab {
     padding: 0 var(--space-3);
+  }
+  /* Phones stack the page, so there is no side to hide. */
+  .hide-editor,
+  .editor-rail {
+    display: none;
+  }
+  .work-pane-body[hidden] {
+    display: flex;
   }
   /* Phones: the left side always shows the lesson; each scenario sits above its editor. */
   .left-switch,

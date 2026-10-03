@@ -244,3 +244,14 @@ test("a remembered folder inside the browser's own storage is never reused: you'
   await expect(banner(page)).toContainText('In folder picked-again.')
   expect(await page.evaluate(() => (window as unknown as { __pickerShown: number }).__pickerShown)).toBe(1)
 })
+
+test('with the editor hidden, saves in VS Code keep syncing and Submit from the rail grades them', async ({ page }) => {
+  await page.getByRole('button', { name: 'Edit in VS Code' }).click()
+  await expect(banner(page)).toBeVisible()
+  await page.getByRole('button', { name: 'Hide editor' }).click()
+  await expect(page.getByTestId('editor-rail')).toContainText('Editing 000-fixture/01-make-a-team/main.py in VS Code')
+  await saveInVsCode(page, `${MAKE_TEAM}/main.py`, fixtureFile('01-make-a-team', 'solution.py'))
+  await page.getByTestId('editor-rail').getByRole('button', { name: 'Submit' }).click()
+  await expect(page.getByTestId('grade')).toContainText('All 5 checks passed.')
+  await expect(editor(page)).toContainText('if members is None:')
+})
