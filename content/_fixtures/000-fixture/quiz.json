@@ -4,64 +4,49 @@
       "q": "When does Python create the value of a default argument?",
       "options": [
         "Every time the function is called without that argument",
-        "Once, when the def statement runs",
+        "Once, when the `def` statement runs",
         "The first time the function is called",
-        "When the module is imported, before any def runs"
+        "When the module is imported, before any `def` runs"
       ],
       "answer": 1,
       "explanations": [
         "That's how many people expect it to work, and why the bug surprises them. The default is not rebuilt per call.",
-        "Right. The def statement evaluates the default once and stores that object on the function.",
-        "Close, but it happens earlier: at definition time, before any call.",
-        "Defaults are evaluated as each def runs, in order. Nothing happens before the def line itself."
+        "Right. The `def` statement evaluates the default once and stores that object on the function.",
+        "Close, but it happens earlier: when `def` runs, before any call.",
+        "Defaults are evaluated as each `def` runs, in order. Nothing happens before the `def` line itself."
       ]
     },
     {
-      "q": "Predict the output:\n\ndef add(name, team=[]):\n    team.append(name)\n    return team\n\nadd('pikachu')\nprint(add('eevee'))",
-      "options": [
-        "['eevee']",
-        "['pikachu', 'eevee']",
-        "['eevee', 'pikachu']",
-        "TypeError"
-      ],
+      "q": "Predict the output:\n\n```python\ndef add(name, team=[]):\n    team.append(name)\n    return team\n\nadd('pikachu')\nprint(add('eevee'))\n```",
+      "options": ["`['eevee']`", "`['pikachu', 'eevee']`", "`['eevee', 'pikachu']`", "A `TypeError`"],
       "answer": 1,
       "explanations": [
-        "That would be true if each call got a fresh list. It doesn't; both calls share one.",
-        "Right. The first call left 'pikachu' in the shared default list, and the second call appended to it.",
-        "append adds to the end, so the order is the order of the calls.",
+        "That would be true if each call got a fresh list. It doesn't: both calls share one.",
+        "Right. The first call left `'pikachu'` in the shared default list, and the second call appended to it.",
+        "`append` adds to the end, so the order is the order of the calls.",
         "Nothing here is the wrong type. The code runs; it just shares state."
       ]
     },
     {
       "q": "Which default value is safe to use?",
-      "options": [
-        "[]",
-        "{}",
-        "None",
-        "set()"
-      ],
+      "options": ["`[]`", "`{}`", "`None`", "`set()`"],
       "answer": 2,
       "explanations": [
         "A list can change, so every call that uses the default shares and changes it.",
         "A dict can change, so it has the same problem as a list.",
-        "Right. None can't be changed, and it clearly means \"not passed\", so you can build a fresh object inside the function.",
+        "Right. `None` can't be changed, and it clearly means \"not passed\", so you can build a fresh object inside the function.",
         "A set can change, so it has the same problem as a list."
       ]
     },
     {
-      "q": "Predict the output:\n\nCREATE TABLE teams (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text);\nINSERT INTO teams (name) VALUES ('Rain Dance'), ('Sun Room');\nSELECT count(DISTINCT id) FROM teams;",
-      "options": [
-        "1",
-        "2",
-        "0",
-        "An error: the INSERT leaves out id"
-      ],
+      "q": "Predict the output:\n\n```sql\nCREATE TABLE teams (\n    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n    name text\n);\nINSERT INTO teams (name) VALUES ('Rain Dance'), ('Sun Room');\nSELECT count(DISTINCT id) FROM teams;\n```",
+      "options": ["`1`", "`2`", "`0`", "An error: the `INSERT` leaves out `id`"],
       "answer": 1,
       "explanations": [
         "That would mean the default was computed once and reused, which is how Python treats a default argument, not how Postgres treats a column default.",
         "Right. The column default runs for each inserted row, so each team gets its own id.",
-        "The INSERT added two rows, and each has an id. There are no missing ids to leave out of the count.",
-        "Leaving a column out of an INSERT is exactly when its DEFAULT is used. Nothing here is required and missing."
+        "The `INSERT` added two rows, and each has an id. There are no missing ids to leave out of the count.",
+        "Leaving a column out of an `INSERT` is exactly when its `DEFAULT` is used. Nothing here is required and missing."
       ]
     }
   ]

@@ -201,6 +201,14 @@ checklist ("new teams get their own roster"), so they must read naturally.
 Every option gets an explanation. 3-6 questions per lesson. Include at least one
 "predict the output" question when the lesson has code.
 
+`q`, `options` and `explanations` are Markdown, so code reads as code:
+- Code in a question goes in a fenced block: `"Predict the output:\n\n```python\nprint(1 + 1)\n```"`.
+- Code values in options and explanations use backticks: `` "`['pikachu', 'eevee']`" ``.
+
+The site shows one question at a time. Picking an option shows that option's explanation;
+Sean can pick others to read theirs too. Only his first pick on each question counts toward
+the score.
+
 ## checkpoint.md
 The section's checkpoint from curriculum.json, broken into a done-when checklist.
 From Tier 2 on, it also lists the pytest file that will verify it (Phase 2 CLI).

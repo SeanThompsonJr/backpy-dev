@@ -28,7 +28,7 @@ describe('LessonView', () => {
     const noExercises = { ...fixture, lesson: { ...fixture.lesson, exercises: [] } }
     renderLesson(noExercises)
     const h2s = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
-    expect(h2s).toEqual(['Why this matters', 'The concept', 'Worked example', 'What breaks', 'Check yourself', 'Explain it back'])
+    expect(h2s).toEqual(['Why this matters', 'The concept', 'Worked example', 'What breaks', 'Check yourself', 'Quiz', 'Explain it back'])
   })
 
   it('ends the lesson with an explain-back box that asks the lesson question', () => {

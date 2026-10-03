@@ -6,6 +6,7 @@ import type { UnverifiedClaim } from '../../shared/lesson-parse'
 import { curriculum } from '../data/curriculum'
 import { ExercisePanel, TYPE_ICON, TYPE_LABEL } from './ExercisePanel'
 import { ExplainBack } from './ExplainBack'
+import { LessonQuiz } from './LessonQuiz'
 import { afterSubmit, newlyUnlocked, NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { StuckPanel } from './StuckPanel'
 import { Markdown } from './Markdown'
@@ -209,6 +210,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
           <Markdown className="prose" claims={claims}>
             {body}
           </Markdown>
+          {entry.lesson.quiz && <LessonQuiz quiz={entry.lesson.quiz} />}
           <ExplainBack question={fm.explain_back} answer={explanation} onChange={setExplanation} />
           {!isFixture && <Pager id={fm.id} />}
         </div>

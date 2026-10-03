@@ -51,19 +51,22 @@ interface Props {
   className?: string
   /** Unverified claims to underline in place (see markClaims.ts) */
   claims?: { quote: string; check: string }[]
+  /** Renders a short phrase (e.g. a quiz option) inside a <span>, without a paragraph around it */
+  inline?: boolean
 }
 
-export function Markdown({ children, className, claims }: Props) {
+const inlineComponents: Components = { ...components, p: ({ children }) => <>{children}</> }
+
+export function Markdown({ children, className, claims, inline = false }: Props) {
   const rehypePlugins = useMemo(() => {
     const plugins: PluggableList = [[rehypeHighlight, { languages: LANGUAGES, detect: false, plainText: ['text'] }]]
     if (claims?.length) plugins.push([rehypeMarkClaims, { claims }])
     return plugins
   }, [claims])
-  return (
-    <div className={className}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={rehypePlugins} components={components}>
-        {children}
-      </ReactMarkdown>
-    </div>
+  const markdown = (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={rehypePlugins} components={inline ? inlineComponents : components}>
+      {children}
+    </ReactMarkdown>
   )
+  return inline ? <span className={className ?? 'md-inline'}>{markdown}</span> : <div className={className}>{markdown}</div>
 }
