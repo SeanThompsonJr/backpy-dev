@@ -51,7 +51,9 @@ export function StuckPanel({ exercise, progress, onShowHint, onShowSolution }: P
           <Locked>Unlocks after 2 failed submits, or once you've solved it.</Locked>
         ) : progress.solutionShown ? (
           <>
-            <Markdown className="prose prose-compact">{'```python\n' + (exercise.solution ?? '').trimEnd() + '\n```'}</Markdown>
+            <Markdown className="prose prose-compact">
+              {'```' + (exercise.meta.type === 'sql' ? 'sql' : 'python') + '\n' + (exercise.solution ?? '').trimEnd() + '\n```'}
+            </Markdown>
             <p className="stuck-label">Why it works</p>
             <p className="stuck-text">{hints.solution_explanation}</p>
           </>

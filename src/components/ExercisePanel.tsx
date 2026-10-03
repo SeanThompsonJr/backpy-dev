@@ -16,6 +16,9 @@ import { gradeTestRun } from '../../shared/grade'
 import type { ExerciseType } from '../../shared/schema'
 import type { Exercise } from '../../shared/lesson-parse'
 import { python, type PythonStatus } from '../runtime/python-client'
+import { gradeSql } from '../../shared/sql-runner'
+import { sqlRunner, type SqlStatus } from '../runtime/sql-client'
+import { useSqlStatus } from '../runtime/useSqlStatus'
 import { usePythonStatus } from '../runtime/usePythonStatus'
 import {
   changeFolder,
@@ -33,7 +36,7 @@ import { VsCodeBanner, type SyncedFile } from './VsCodeBanner'
 import { CodeEditor } from './CodeEditor'
 import { NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { Markdown } from './Markdown'
-import { appendChunk, IDLE, OutputPane, type RunState } from './OutputPane'
+import { appendChunk, IDLE, OutputPane, type RunState, type Runtime } from './OutputPane'
 import { StuckPanel } from './StuckPanel'
 
 export const TYPE_LABEL: Record<ExerciseType, string> = {
@@ -74,10 +77,20 @@ function Checklist({
   )
 }
 
-const PYTHON_STATUS_TEXT: Partial<Record<PythonStatus, string>> = {
-  loading: 'Loading Python…',
-  restarting: 'Restarting Python…',
-  failed: "Python didn't load",
+const STATUS_TEXT: Record<Runtime, Partial<Record<PythonStatus | SqlStatus, string>>> = {
+  python: { loading: 'Loading Python…', restarting: 'Restarting Python…', failed: "Python didn't load" },
+  sql: { loading: 'Loading Postgres…', restarting: 'Restarting Postgres…', failed: "Postgres didn't load" },
+}
+
+/** Which runtime an exercise runs on, or undefined for exercises done on Sean's machine. */
+const runtimeOf = (e: Exercise): Runtime | undefined =>
+  e.meta.type === 'sql' ? 'sql' : e.meta.type === 'local' ? undefined : 'python'
+
+/** The current status of the runtime an exercise uses. */
+function useRuntimeStatus(runtime: Runtime | undefined) {
+  const pythonStatus = usePythonStatus()
+  const sqlStatus = useSqlStatus()
+  return runtime === 'sql' ? sqlStatus : pythonStatus
 }
 
 interface CodeExerciseProps {
@@ -103,10 +116,11 @@ interface CodeExerciseProps {
 
 function CodeExercise(props: CodeExerciseProps) {
   const { exercise, code, onChange, run, onRun, onSubmit, onReset, onShowHint, solved, link, vscodeError } = props
-  const isPython = isPythonExercise(exercise)
-  const pythonStatus = usePythonStatus()
-  const busy = pythonStatus === 'running'
-  const unavailable = pythonStatus === 'failed'
+  const runtime = runtimeOf(exercise) ?? 'python'
+  const isPython = runtime === 'python'
+  const status = useRuntimeStatus(runtime)
+  const busy = status === 'running'
+  const unavailable = status === 'failed'
   return (
     <>
       {link && (
@@ -125,12 +139,12 @@ function CodeExercise(props: CodeExerciseProps) {
           language={isPython ? 'python' : 'sql'}
           label={`${isPython ? 'Python' : 'SQL'} editor: ${exercise.meta.title}${link ? ' (read-only while editing in VS Code)' : ''}`}
           onChange={onChange}
-          onRun={isPython ? () => !busy && !unavailable && onRun() : undefined}
+          onRun={() => !busy && !unavailable && onRun()}
           readOnly={!!link}
         />
       </div>
       <div className="work-toolbar">
-        {isPython && (
+        {
           <>
             <button type="button" className="btn btn-run" onClick={onRun} disabled={busy || unavailable}>
               <Play size={16} aria-hidden="true" />
@@ -158,30 +172,25 @@ function CodeExercise(props: CodeExerciseProps) {
               ) : (
                 <p className="vscode-unsupported">Editing in VS Code needs Chrome or Edge.</p>
               ))}
-            <p className="python-status" role="status">
-              {PYTHON_STATUS_TEXT[pythonStatus]}
+            <p className="runtime-status" role="status">
+              {STATUS_TEXT[runtime][status]}
             </p>
           </>
-        )}
+        }
         {vscodeError && (
           <p className="vscode-banner-error" role="alert">
             {vscodeError}
           </p>
         )}
-        <p className="editor-help">{isPython && `${runShortcut} runs your code. `}Esc then Tab leaves the editor.</p>
+        <p className="editor-help">{runShortcut} runs your code. Esc then Tab leaves the editor.</p>
       </div>
-      {isPython ? (
-        <OutputPane
-          state={run}
-          python={pythonStatus}
-          bugDescription={exercise.meta.type === 'bug_hunt' ? exercise.meta.bug_description : undefined}
-          onShowHint={onShowHint}
-        />
-      ) : (
-        <section className="output-pane" aria-label="Output" data-testid="output">
-          <p className="output-empty">Output appears here when you run your code.</p>
-        </section>
-      )}
+      <OutputPane
+        state={run}
+        runtime={runtime}
+        status={status}
+        bugDescription={exercise.meta.type === 'bug_hunt' ? exercise.meta.bug_description : undefined}
+        onShowHint={onShowHint}
+      />
     </>
   )
 }
@@ -215,7 +224,7 @@ export function ExercisePanel(props: Props) {
     onShowHint,
     onShowSolution,
   } = props
-  const pythonStatus = usePythonStatus()
+  const openStatus = useRuntimeStatus(runtimeOf(exercises[selected]))
   const [code, setCode] = useState<Record<string, string>>(() =>
     Object.fromEntries(exercises.map((e) => [e.folder, e.starter ?? ''])),
   )
@@ -240,6 +249,7 @@ export function ExercisePanel(props: Props) {
   // Start loading Python as soon as a lesson with Python exercises opens.
   useEffect(() => {
     if (exercises.some(isPythonExercise)) python.warmUp()
+    if (exercises.some((e) => e.meta.type === 'sql')) sqlRunner.warmUp()
   }, [exercises])
 
   const updateRun = (folder: string, update: (state: RunState) => RunState) =>
@@ -337,7 +347,40 @@ export function ExercisePanel(props: Props) {
     await startSync(ex)
   }
 
+  const runSqlExercise = async (ex: Exercise, mode: 'run' | 'submit') => {
+    if (ex.meta.type !== 'sql') return
+    const { folder } = ex
+    const timeoutSeconds = ex.meta.timeout_seconds
+    updateRun(folder, () => ({ phase: 'running', mode, chunks: [], timeoutSeconds }))
+    const source = (await syncNow(folder)) ?? code[folder]
+    const seed = ex.seed ?? ''
+    const outcome =
+      mode === 'run'
+        ? await sqlRunner.run(seed, source, timeoutSeconds)
+        : await sqlRunner.grade(seed, source, ex.solution ?? '', timeoutSeconds)
+    if (outcome.kind === 'unavailable') {
+      updateRun(folder, (s) => ({ ...s, phase: 'unavailable', message: outcome.message }))
+    } else if (outcome.kind === 'timeout') {
+      updateRun(folder, (s) => ({ ...s, phase: 'timeout', timeoutDuring: outcome.during, seconds: outcome.seconds }))
+    } else if (outcome.kind === 'ran') {
+      updateRun(folder, (s) => ({
+        ...s,
+        phase: outcome.outcome.ok ? 'finished' : 'error',
+        sql: outcome.outcome,
+        seconds: outcome.seconds,
+      }))
+    } else if (!outcome.expected.ok) {
+      // The solution itself failed: a content bug, shown plainly rather than graded.
+      updateRun(folder, (s) => ({ ...s, phase: 'error', sql: outcome.expected }))
+    } else {
+      const grade = gradeSql(outcome.learner, outcome.expected.result, ex.sqlTests?.checks ?? [])
+      const unlocked = onSubmitted(folder, grade.passed)
+      updateRun(folder, (s) => ({ ...s, phase: 'graded', grade, unlocked }))
+    }
+  }
+
   const runCode = async (ex: Exercise) => {
+    if (ex.meta.type === 'sql') return runSqlExercise(ex, 'run')
     if (ex.meta.type !== 'code' && ex.meta.type !== 'bug_hunt') return
     const { folder } = ex
     const timeoutSeconds = ex.meta.timeout_seconds
@@ -362,6 +405,7 @@ export function ExercisePanel(props: Props) {
   }
 
   const submitCode = async (ex: Exercise) => {
+    if (ex.meta.type === 'sql') return runSqlExercise(ex, 'submit')
     if (ex.meta.type !== 'code' && ex.meta.type !== 'bug_hunt') return
     const { folder } = ex
     const timeoutSeconds = ex.meta.timeout_seconds
@@ -428,8 +472,8 @@ export function ExercisePanel(props: Props) {
       {collapsed && (
         <EditorRail
           panelId={bodyId}
-          showRunButtons={isPythonExercise(exercise)}
-          busy={pythonStatus === 'running' || pythonStatus === 'failed'}
+          showRunButtons={runtimeOf(exercise) !== undefined}
+          busy={openStatus === 'running' || openStatus === 'failed'}
           run={run}
           linkedPath={links[exercise.folder]?.path}
           onExpand={() => onCollapsedChange(false)}

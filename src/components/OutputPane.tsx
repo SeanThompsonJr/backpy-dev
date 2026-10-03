@@ -1,7 +1,14 @@
 import { CircleAlert, CircleCheck, CircleX, LoaderCircle, RotateCcw, TimerOff } from 'lucide-react'
 import type { Grade } from '../../shared/grade'
+import type { SqlOutcome } from '../../shared/sql-runner'
 import type { OutputChunk, PythonStatus } from '../runtime/python-client'
 import { OUTPUT_LIMIT } from '../runtime/python-protocol'
+import type { SqlStatus } from '../runtime/sql-client'
+import { SqlTable } from './SqlTable'
+
+export type Runtime = 'python' | 'sql'
+const RUNTIME_NAME: Record<Runtime, string> = { python: 'Python', sql: 'Postgres' }
+const FIRST_DOWNLOAD: Record<Runtime, string> = { python: 'about 13 MB', sql: 'about 16 MB' }
 
 export type RunPhase = 'idle' | 'running' | 'finished' | 'error' | 'timeout' | 'unavailable' | 'reset' | 'graded'
 
@@ -17,6 +24,8 @@ export interface RunState {
   timeoutDuring?: 'loading' | 'running'
   message?: string
   grade?: Grade
+  /** A SQL run's result or error */
+  sql?: SqlOutcome
   /** e.g. "Hint 1 is unlocked." after a failed submit */
   unlocked?: string
 }
@@ -37,7 +46,14 @@ export function appendChunk(state: RunState, chunk: OutputChunk): RunState {
   return { ...state, chunks }
 }
 
-function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
+interface SummaryProps {
+  state: RunState
+  runtime: Runtime
+  status: PythonStatus | SqlStatus
+}
+
+function Summary({ state, runtime, status }: SummaryProps) {
+  const name = RUNTIME_NAME[runtime]
   switch (state.phase) {
     case 'idle':
     case 'graded':
@@ -46,8 +62,8 @@ function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
       return (
         <p className="run-summary">
           <LoaderCircle size={16} className="spin" aria-hidden="true" />
-          {python === 'loading' || python === 'restarting'
-            ? 'Loading Python. The first load downloads about 13 MB, so it takes a few seconds.'
+          {status === 'loading' || status === 'restarting'
+            ? `Loading ${name}. The first load downloads ${FIRST_DOWNLOAD[runtime]}, so it takes a few seconds.`
             : state.mode === 'submit'
               ? 'Checking your code…'
               : 'Running…'}
@@ -57,14 +73,18 @@ function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
       return (
         <p className="run-summary run-summary-ok">
           <CircleCheck size={16} aria-hidden="true" />
-          Ran in {formatSeconds(state.seconds)}.
+          {state.sql?.ok
+            ? `Ran ${state.sql.result.statementCount} statement${state.sql.result.statementCount === 1 ? '' : 's'} in ${formatSeconds(state.seconds)}.`
+            : `Ran in ${formatSeconds(state.seconds)}.`}
         </p>
       )
     case 'error':
       return (
         <p className="run-summary run-summary-error">
           <CircleAlert size={16} aria-hidden="true" />
-          Stopped by an error. The last line of the traceback says what went wrong.
+          {runtime === 'sql'
+            ? 'Postgres stopped at an error. The message above says what went wrong and where.'
+            : 'Stopped by an error. The last line of the traceback says what went wrong.'}
         </p>
       )
     case 'timeout': {
@@ -73,8 +93,12 @@ function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
         <p className="run-summary run-summary-error" data-testid="timeout-message">
           <TimerOff size={16} aria-hidden="true" />
           {state.timeoutDuring === 'loading'
-            ? `Timed out: Python couldn't finish downloading, so your code never started. Check your internet connection, then try again.${notCounted}`
-            : `Timed out after ${state.timeoutSeconds} seconds: your code was still running. It may be stuck in a loop that never ends, or waiting on a network request that never finished. Python was restarted and your code is untouched.${notCounted}`}
+            ? `Timed out: ${name} couldn't finish downloading, so your code never started. Check your internet connection, then try again.${notCounted}`
+            : `Timed out after ${state.timeoutSeconds} seconds: your code was still running. ${
+                runtime === 'sql'
+                  ? 'A query may be stuck, for example a recursive query that never stops.'
+                  : 'It may be stuck in a loop that never ends, or waiting on a network request that never finished.'
+              } ${name} was restarted and your code is untouched.${notCounted}`}
         </p>
       )
     }
@@ -82,7 +106,7 @@ function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
       return (
         <p className="run-summary run-summary-error">
           <CircleAlert size={16} aria-hidden="true" />
-          Python couldn't load ({state.message}). Check your connection, then reload the page.
+          {name} couldn't load ({state.message}). Check your connection, then reload the page.
         </p>
       )
     case 'reset':
@@ -111,7 +135,7 @@ function GradeView({ grade, unlocked, bugDescription, onShowHint }: GradeViewPro
       <p className={`grade-title ${grade.passed ? 'grade-title-pass' : 'grade-title-fail'}`}>
         {grade.passed ? <CircleCheck size={18} aria-hidden="true" /> : <CircleX size={18} aria-hidden="true" />}
         {grade.loadError
-          ? "Your code couldn't load, so no checks ran."
+          ? "Your code couldn't run, so no checks ran."
           : grade.passed
             ? `All ${total} check${total === 1 ? '' : 's'} passed.`
             : `${grade.failedCount} of ${total} check${total === 1 ? '' : 's'} failed.`}
@@ -134,14 +158,20 @@ function GradeView({ grade, unlocked, bugDescription, onShowHint }: GradeViewPro
       {grade.firstFailure && (
         <div className="rethink" data-testid="rethink">
           <p className="rethink-label">
-            {grade.firstFailure.kind === 'assertion' ? 'Think about this' : 'Your code raised an error in this check'}:{' '}
-            <span className="rethink-check">{grade.firstFailure.label}</span>
+            {grade.firstFailure.kind === 'assertion'
+              ? 'Think about this'
+              : grade.firstFailure.kind === 'exception'
+                ? 'Your code raised an error in this check'
+                : "This check couldn't run"}
+            : <span className="rethink-check">{grade.firstFailure.label}</span>
           </p>
-          {grade.firstFailure.kind === 'assertion' && <p className="rethink-message">{grade.firstFailure.message}</p>}
+          {grade.firstFailure.kind !== 'exception' && <p className="rethink-message">{grade.firstFailure.message}</p>}
           {grade.firstFailure.traceback ? (
             <pre className="output-text output-stderr">{grade.firstFailure.traceback}</pre>
           ) : (
-            grade.firstFailure.kind !== 'assertion' && <pre className="output-text output-stderr">{grade.firstFailure.message}</pre>
+            grade.firstFailure.kind === 'exception' && (
+              <pre className="output-text output-stderr">{grade.firstFailure.message}</pre>
+            )
           )}
         </div>
       )}
@@ -176,19 +206,52 @@ function GradeView({ grade, unlocked, bugDescription, onShowHint }: GradeViewPro
 
 interface Props {
   state: RunState
-  python: PythonStatus
+  runtime: Runtime
+  status: PythonStatus | SqlStatus
   bugDescription?: string
   onShowHint?: () => void
 }
 
-export function OutputPane({ state, python, bugDescription, onShowHint }: Props) {
+function SqlOutput({ outcome }: { outcome: SqlOutcome }) {
+  if (!outcome.ok) {
+    const { message, line, hint, inSeed } = outcome.error
+    return (
+      <div className="sql-error" data-testid="sql-error">
+        <pre className="output-text output-stderr">
+          {inSeed ? "This exercise's starting data failed to load: " : 'ERROR: '}
+          {message}
+          {line && !inSeed ? ` (line ${line})` : ''}
+        </pre>
+        {hint && <p className="output-note">Hint from Postgres: {hint}</p>}
+      </div>
+    )
+  }
+  const { columns, rows, affectedRows } = outcome.result
+  if (columns.length === 0) {
+    return (
+      <p className="output-empty">
+        The last statement didn't return rows
+        {affectedRows ? `; it changed ${affectedRows} row${affectedRows === 1 ? '' : 's'}` : ''}. End with a SELECT to
+        see a result here.
+      </p>
+    )
+  }
+  return <SqlTable columns={columns} rows={rows} />
+}
+
+export function OutputPane({ state, runtime, status, bugDescription, onShowHint }: Props) {
   const hasOutput = state.chunks.some((c) => c.text.length > 0)
   const done = state.phase === 'finished' || state.phase === 'error'
   return (
     <section className="output-pane" aria-label="Output" data-testid="output" data-phase={state.phase}>
       {state.phase === 'idle' && (
-        <p className="output-empty">Run shows what your code prints. Submit checks it against the exercise.</p>
+        <p className="output-empty">
+          {runtime === 'sql'
+            ? 'Run shows what your query returns. Submit checks it against the exercise.'
+            : 'Run shows what your code prints. Submit checks it against the exercise.'}
+        </p>
       )}
+      {state.sql && state.phase !== 'graded' && <SqlOutput outcome={state.sql} />}
       {hasOutput && (
         <pre className="output-text" data-testid="output-text">
           {state.chunks.map((c, i) => (
@@ -198,14 +261,19 @@ export function OutputPane({ state, python, bugDescription, onShowHint }: Props)
           ))}
         </pre>
       )}
-      {done && !hasOutput && <p className="output-empty">Your code didn't print anything.</p>}
+      {done && !hasOutput && !state.sql && <p className="output-empty">Your code didn't print anything.</p>}
       {state.truncated && (
         <p className="output-note">Output was cut off after {OUTPUT_LIMIT.toLocaleString()} characters.</p>
       )}
       <div aria-live="polite" data-testid="run-summary">
-        <Summary state={state} python={python} />
+        <Summary state={state} runtime={runtime} status={status} />
         {state.phase === 'graded' && state.grade && (
-          <GradeView grade={state.grade} unlocked={state.unlocked} bugDescription={bugDescription} onShowHint={onShowHint} />
+          <GradeView
+            grade={state.grade}
+            unlocked={state.unlocked}
+            bugDescription={bugDescription}
+            onShowHint={onShowHint}
+          />
         )}
       </div>
     </section>

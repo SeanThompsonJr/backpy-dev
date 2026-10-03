@@ -33,7 +33,7 @@ test.describe('desktop', () => {
 
   test('Show editor brings it back with your edits and output kept', async ({ page }) => {
     await openFixture(page)
-    await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+    await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
     await editor(page).click()
     await page.keyboard.press('ControlOrMeta+a')
     await page.keyboard.insertText('print("still here")\n')
@@ -57,7 +57,7 @@ test.describe('desktop', () => {
 
   test('Submit from the rail opens the editor side to show the result', async ({ page }) => {
     await openFixture(page)
-    await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+    await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
     await editor(page).click()
     await page.keyboard.press('ControlOrMeta+a')
     await page.keyboard.insertText(readFileSync('content/_fixtures/000-fixture/exercises/01-make-a-team/solution.py', 'utf8'))
@@ -69,7 +69,7 @@ test.describe('desktop', () => {
 
   test('the rail shows how the last submit went', async ({ page }) => {
     await openFixture(page)
-    await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+    await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
     await page.getByRole('button', { name: 'Submit' }).click()
     await expect(page.getByTestId('grade')).toContainText('5 of 5 checks failed.')
     await hideButton(page).click()

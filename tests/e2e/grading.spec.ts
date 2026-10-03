@@ -16,7 +16,7 @@ const stuck = (page: Page) => page.getByTestId('exercise-brief').getByTestId('st
 async function openFixture(page: Page) {
   await page.goto('/#/lesson/fixture')
   await expect(editor(page)).toBeVisible()
-  await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+  await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
 }
 
 async function setCode(page: Page, code: string) {
@@ -79,7 +79,7 @@ test('code that cannot load explains that no checks ran', async ({ page }) => {
   await openFixture(page)
   await setCode(page, 'def make_team(name:\n    pass\n')
   await submit(page).click()
-  await expect(grade(page)).toContainText("Your code couldn't load, so no checks ran.")
+  await expect(grade(page)).toContainText("Your code couldn't run, so no checks ran.")
   await expect(grade(page)).toContainText('SyntaxError')
 })
 

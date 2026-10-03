@@ -49,7 +49,7 @@ test.beforeEach(async ({ page }) => {
     }
   })
   await expect(editor(page)).toBeVisible()
-  await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+  await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
 })
 
 /** Writes a file the way VS Code would when Sean saves. */

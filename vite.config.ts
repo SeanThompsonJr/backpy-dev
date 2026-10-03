@@ -45,7 +45,7 @@ export default defineConfig({
     // Scan every source file at startup, not just what index.html reaches eagerly. Otherwise the
     // lazily loaded lesson page discovers its dependencies on first visit and Vite reloads the page.
     entries: ['index.html', 'src/**/*.{ts,tsx}'],
-    // Pyodide locates its runtime files itself; pre-bundling it breaks that.
-    exclude: ['pyodide'],
+    // Pyodide and PGlite locate their runtime files themselves; pre-bundling them breaks that.
+    exclude: ['pyodide', '@electric-sql/pglite'],
   },
 })

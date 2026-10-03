@@ -13,7 +13,7 @@ async function openFixtureWithPython(page: Page) {
   await page.goto('/#/lesson/fixture')
   await expect(editor(page)).toBeVisible()
   // Python is ready once the loading status clears.
-  await expect(page.locator('.python-status')).toBeEmpty({ timeout: 60_000 })
+  await expect(page.locator('.runtime-status')).toBeEmpty({ timeout: 60_000 })
   await expect(runButton(page)).toBeEnabled()
 }
 
