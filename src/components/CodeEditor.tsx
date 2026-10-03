@@ -25,13 +25,15 @@ interface Props {
   onChange: (value: string) => void
   /** Ctrl+Enter (Cmd+Enter on a Mac) */
   onRun?: () => void
+  /** True while the code is being edited somewhere else (VS Code sync) */
+  readOnly?: boolean
 }
 
 /**
  * CodeMirror 6 editor. The parent owns the text: when `value` changes from outside
  * (switching exercise, reset), the editor's document is replaced.
  */
-export function CodeEditor({ value, language, label, onChange, onRun }: Props) {
+export function CodeEditor({ value, language, label, onChange, onRun, readOnly = false }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const view = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
@@ -54,6 +56,7 @@ export function CodeEditor({ value, language, label, onChange, onRun }: Props) {
         highlightActiveLine(),
         indentUnit.of('    '),
         EditorState.tabSize.of(4),
+        EditorState.readOnly.of(readOnly),
         // Highest precedence so Mod-Enter runs the code instead of inserting a blank line.
         Prec.highest(
           keymap.of([
@@ -81,8 +84,8 @@ export function CodeEditor({ value, language, label, onChange, onRun }: Props) {
       view.current?.destroy()
       view.current = null
     }
-    // The editor is rebuilt only when the language or label changes; text changes go through the effect below.
-  }, [language, label])
+    // The editor is rebuilt only when these change; text changes go through the effect below.
+  }, [language, label, readOnly])
 
   useEffect(() => {
     const v = view.current

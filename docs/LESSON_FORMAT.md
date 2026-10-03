@@ -136,7 +136,8 @@ print(team["members"])   # []
   that hasn't been taught yet.
 - The Example covers every case. When the output depends on a condition (True or False,
   empty or not, found or missing), show the exact expected output for each outcome. Sean
-  should never have to guess an output that a test checks.
+  should never have to guess an output that a test checks. Keep example lines short (about
+  60 characters) so they're readable without scrolling.
 - Show behaviour, not implementation. Never the cause of a bug or the code of the fix.
 - Not a restatement of the lesson. About 150 words at most, not counting code.
 

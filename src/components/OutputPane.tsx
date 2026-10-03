@@ -89,7 +89,9 @@ function Summary({ state, python }: { state: RunState; python: PythonStatus }) {
       return (
         <p className="run-summary">
           <RotateCcw size={16} aria-hidden="true" />
-          Back to the starter code. Press {undoKey} in the editor to undo.
+          {state.message
+            ? `Back to the starter code, here and in ${state.message}.`
+            : `Back to the starter code. Press ${undoKey} in the editor to undo.`}
         </p>
       )
   }

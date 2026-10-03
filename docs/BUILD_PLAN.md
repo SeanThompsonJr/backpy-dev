@@ -22,6 +22,8 @@ Each milestone ends with something visible in the browser and a test that proves
     writes the starter there as `<lesson>/<exercise>/main.py` (never the hidden tests), watches
     the file, and mirrors his edits into the browser editor within about a second. Submit,
     hints, and the solution unlock work exactly as in the browser. Grading stays in Pyodide.
+    After Sean pastes the folder's full path once, the button also opens VS Code at the file
+    (vscode:// link; the browser asks permission). The folder can be changed at any time.
 6. **Quizzes**: one question at a time; an explanation for whichever option was picked.
 7. **SQL runtime**: PGlite with seed.sql; query results shown as a table; SQL exercises graded.
 8. **Progress**: localStorage (lessons completed, exercise attempts, quiz scores, explain-back

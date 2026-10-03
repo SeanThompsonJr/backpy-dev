@@ -221,6 +221,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
       </article>
       {exercise && (
         <ExercisePanel
+          lessonFolder={entry.lesson.folder}
           exercises={exercises}
           selected={selected}
           onSelect={selectExercise}

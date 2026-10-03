@@ -1,10 +1,22 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import { Bug, CircleCheck, Code, Database, Play, RotateCcw, Send, Terminal, type LucideIcon } from 'lucide-react'
+import { Bug, CircleCheck, Code, Database, FileCode, Play, RotateCcw, Send, Terminal, type LucideIcon } from 'lucide-react'
 import { gradeTestRun } from '../../shared/grade'
 import type { ExerciseType } from '../../shared/schema'
 import type { Exercise } from '../../shared/lesson-parse'
 import { python, type PythonStatus } from '../runtime/python-client'
 import { usePythonStatus } from '../runtime/usePythonStatus'
+import {
+  changeFolder,
+  linkExercise,
+  openInVsCode,
+  readIfChanged,
+  saveFolderPath,
+  savedFolderPath,
+  vscodeFileUrl,
+  vscodeSyncSupported,
+  writeFile,
+} from '../runtime/vscode-folder'
+import { VsCodeBanner, type SyncedFile } from './VsCodeBanner'
 import { CodeEditor } from './CodeEditor'
 import { NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { Markdown } from './Markdown'
@@ -56,22 +68,43 @@ interface CodeExerciseProps {
   onReset: () => void
   onShowHint: () => void
   solved: boolean
+  /** Set while this exercise is being edited in VS Code */
+  link?: SyncedFile
+  vscodeError?: string
+  folderPath?: string
+  onStartSync: () => void
+  onStopSync: () => void
+  onSavePath: (pasted: string) => string | undefined
+  onOpenInVsCode: () => void
+  onChangeFolder: () => void
 }
 
-function CodeExercise({ exercise, code, onChange, run, onRun, onSubmit, onReset, onShowHint, solved }: CodeExerciseProps) {
+function CodeExercise(props: CodeExerciseProps) {
+  const { exercise, code, onChange, run, onRun, onSubmit, onReset, onShowHint, solved, link, vscodeError } = props
   const isPython = isPythonExercise(exercise)
   const pythonStatus = usePythonStatus()
   const busy = pythonStatus === 'running'
   const unavailable = pythonStatus === 'failed'
   return (
     <>
+      {link && (
+        <VsCodeBanner
+          link={link}
+          folderPath={props.folderPath}
+          onSavePath={props.onSavePath}
+          onOpen={props.onOpenInVsCode}
+          onChangeFolder={props.onChangeFolder}
+          onStop={props.onStopSync}
+        />
+      )}
       <div className="editor-frame">
         <CodeEditor
           value={code}
           language={isPython ? 'python' : 'sql'}
-          label={`${isPython ? 'Python' : 'SQL'} editor: ${exercise.meta.title}`}
+          label={`${isPython ? 'Python' : 'SQL'} editor: ${exercise.meta.title}${link ? ' (read-only while editing in VS Code)' : ''}`}
           onChange={onChange}
           onRun={isPython ? () => !busy && !unavailable && onRun() : undefined}
+          readOnly={!!link}
         />
       </div>
       <div className="work-toolbar">
@@ -94,10 +127,24 @@ function CodeExercise({ exercise, code, onChange, run, onRun, onSubmit, onReset,
               <RotateCcw size={16} aria-hidden="true" />
               Reset
             </button>
+            {!link &&
+              (vscodeSyncSupported() ? (
+                <button type="button" className="btn btn-ghost" onClick={props.onStartSync} disabled={busy}>
+                  <FileCode size={16} aria-hidden="true" />
+                  Edit in VS Code
+                </button>
+              ) : (
+                <p className="vscode-unsupported">Editing in VS Code needs Chrome or Edge.</p>
+              ))}
             <p className="python-status" role="status">
               {PYTHON_STATUS_TEXT[pythonStatus]}
             </p>
           </>
+        )}
+        {vscodeError && (
+          <p className="vscode-banner-error" role="alert">
+            {vscodeError}
+          </p>
         )}
         <p className="editor-help">
           {isPython && `${runShortcut} runs your code. `}Esc then Tab leaves the editor.
@@ -120,6 +167,8 @@ function CodeExercise({ exercise, code, onChange, run, onRun, onSubmit, onReset,
 }
 
 interface Props {
+  /** Lesson folder name, used for the VS Code sync path */
+  lessonFolder: string
   exercises: Exercise[]
   selected: number
   onSelect: (index: number) => void
@@ -130,12 +179,24 @@ interface Props {
   onShowSolution: (folder: string) => void
 }
 
-export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmitted, onShowHint, onShowSolution }: Props) {
+export function ExercisePanel(props: Props) {
+  const { lessonFolder, exercises, selected, onSelect, progress, onSubmitted, onShowHint, onShowSolution } = props
   const [code, setCode] = useState<Record<string, string>>(() =>
     Object.fromEntries(exercises.map((e) => [e.folder, e.starter ?? ''])),
   )
   const [checks, setChecks] = useState<Record<string, boolean[]>>({})
   const [runs, setRuns] = useState<Record<string, RunState>>({})
+  const [links, setLinks] = useState<Record<string, SyncedFile>>({})
+  const linksRef = useRef(links)
+  const [vscodeErrors, setVscodeErrors] = useState<Record<string, string>>({})
+  const [folderPath, setFolderPath] = useState(savedFolderPath)
+  // File reads and writes run one at a time, so a save check can't overlap a Reset.
+  const fileQueue = useRef<Promise<unknown>>(Promise.resolve())
+  const oneAtATime = <T,>(task: () => Promise<T>): Promise<T> => {
+    const result = fileQueue.current.then(task, task)
+    fileQueue.current = result.catch(() => {})
+    return result
+  }
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const baseId = useId()
   const exercise = exercises[selected]
@@ -149,12 +210,105 @@ export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmi
   const updateRun = (folder: string, update: (state: RunState) => RunState) =>
     setRuns((r) => ({ ...r, [folder]: update(r[folder] ?? IDLE) }))
 
+  /** Changes or (with undefined) removes an exercise's VS Code link. linksRef stays current for polling. */
+  const updateLink = (folder: string, change: (link: SyncedFile) => SyncedFile | undefined) => {
+    const current = linksRef.current[folder]
+    if (!current) return
+    const next = { ...linksRef.current }
+    const changed = change(current)
+    if (changed) next[folder] = changed
+    else delete next[folder]
+    linksRef.current = next
+    setLinks(next)
+  }
+
+  /** Reads the linked file if it changed since last time. Returns the new code, if any. */
+  const syncNow = (folder: string): Promise<string | undefined> => oneAtATime(() => readSaved(folder))
+
+  const readSaved = async (folder: string): Promise<string | undefined> => {
+    const link = linksRef.current[folder]
+    if (!link) return undefined
+    try {
+      const text = await readIfChanged(link)
+      if (text === undefined) return undefined
+      updateLink(folder, (l) => ({ ...l, lastText: text, updatedAt: new Date(), error: undefined }))
+      setCode((c) => ({ ...c, [folder]: text }))
+      return text
+    } catch {
+      updateLink(folder, (l) => ({
+        ...l,
+        error: `${l.path} was deleted or moved. Press Stop, then Edit in VS Code to create it again.`,
+      }))
+      return undefined
+    }
+  }
+
+  // While the open exercise is linked, check its file for saves a little more than once a second.
+  const openFolder = exercises[selected].folder
+  const openIsLinked = !!links[openFolder]
+  useEffect(() => {
+    if (!openIsLinked) return
+    const timer = setInterval(() => void syncNow(openFolder), 800)
+    return () => clearInterval(timer)
+  }, [openFolder, openIsLinked])
+
+  const openFile = (path: string, file: SyncedFile) => openInVsCode(vscodeFileUrl(path, file.path))
+
+  const startSync = async (ex: Exercise) => {
+    setVscodeErrors((e) => ({ ...e, [ex.folder]: '' }))
+    try {
+      const fileName = ex.meta.type === 'sql' ? 'main.sql' : 'main.py'
+      const { file, text } = await linkExercise(lessonFolder, ex.folder, fileName, code[ex.folder])
+      linksRef.current = { ...linksRef.current, [ex.folder]: file }
+      setLinks(linksRef.current)
+      setCode((c) => ({ ...c, [ex.folder]: text }))
+      // Picking a new folder forgets the old path, so read it again before opening VS Code.
+      const path = savedFolderPath()
+      setFolderPath(path)
+      if (path) openFile(path, file)
+    } catch (error) {
+      if ((error as DOMException).name === 'AbortError') return // the folder picker was closed
+      setVscodeErrors((e) => ({ ...e, [ex.folder]: `Couldn't set up VS Code editing: ${(error as Error).message}` }))
+    }
+  }
+  const stopSync = (ex: Exercise) => updateLink(ex.folder, () => undefined)
+
+  const savePath = (ex: Exercise, pasted: string) => {
+    const link = linksRef.current[ex.folder]
+    if (!link) return undefined
+    const error = saveFolderPath(pasted, link.folderName)
+    if (!error) setFolderPath(savedFolderPath())
+    return error
+  }
+
+  const openExerciseInVsCode = (ex: Exercise) => {
+    const link = linksRef.current[ex.folder]
+    const path = savedFolderPath()
+    if (link && path) openFile(path, link)
+  }
+
+  /** Picks a different folder: every link in this lesson stops, and this exercise moves to the new folder. */
+  const changeFolderFor = async (ex: Exercise) => {
+    try {
+      await changeFolder()
+    } catch (error) {
+      if ((error as DOMException).name === 'AbortError') return
+      setVscodeErrors((e) => ({ ...e, [ex.folder]: `Couldn't change the folder: ${(error as Error).message}` }))
+      return
+    }
+    linksRef.current = {}
+    setLinks({})
+    setFolderPath(undefined)
+    await startSync(ex)
+  }
+
   const runCode = async (ex: Exercise) => {
     if (ex.meta.type !== 'code' && ex.meta.type !== 'bug_hunt') return
     const { folder } = ex
     const timeoutSeconds = ex.meta.timeout_seconds
     updateRun(folder, () => ({ phase: 'running', mode: 'run', chunks: [], timeoutSeconds }))
-    const outcome = await python.run(code[folder], {
+    const source = (await syncNow(folder)) ?? code[folder]
+    const outcome = await python.run(source, {
       packages: ex.meta.packages,
       timeoutSeconds,
       onOutput: (chunk) => updateRun(folder, (s) => appendChunk(s, chunk)),
@@ -176,7 +330,8 @@ export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmi
     const { folder } = ex
     const timeoutSeconds = ex.meta.timeout_seconds
     updateRun(folder, () => ({ phase: 'running', mode: 'submit', chunks: [], timeoutSeconds }))
-    const outcome = await python.test(code[folder], ex.tests ?? '', { packages: ex.meta.packages, timeoutSeconds })
+    const source = (await syncNow(folder)) ?? code[folder]
+    const outcome = await python.test(source, ex.tests ?? '', { packages: ex.meta.packages, timeoutSeconds })
     if (outcome.kind === 'unavailable') {
       updateRun(folder, (s) => ({ ...s, phase: 'unavailable', message: outcome.message }))
       return
@@ -196,9 +351,18 @@ export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmi
     updateRun(folder, (s) => ({ ...s, phase: 'graded', mode: 'submit', grade, unlocked }))
   }
 
-  const resetCode = (ex: Exercise) => {
-    setCode((c) => ({ ...c, [ex.folder]: ex.starter ?? '' }))
-    updateRun(ex.folder, () => ({ phase: 'reset', chunks: [] }))
+  const resetCode = async (ex: Exercise) => {
+    const starter = ex.starter ?? ''
+    const link = linksRef.current[ex.folder]
+    if (link) {
+      // Editing happens in VS Code, so the starter goes into the file too.
+      await oneAtATime(async () => {
+        await writeFile(link.handle, starter)
+        updateLink(ex.folder, (l) => ({ ...l, lastText: starter }))
+      })
+    }
+    setCode((c) => ({ ...c, [ex.folder]: starter }))
+    updateRun(ex.folder, () => ({ phase: 'reset', chunks: [], message: link ? link.path : undefined }))
   }
 
   const onTabKey = (e: KeyboardEvent) => {
@@ -283,6 +447,14 @@ export function ExercisePanel({ exercises, selected, onSelect, progress, onSubmi
             onReset={() => resetCode(exercise)}
             onShowHint={() => onShowHint(exercise.folder, current.failedSubmits >= 2 ? 2 : 1)}
             solved={current.solved}
+            link={links[exercise.folder]}
+            vscodeError={vscodeErrors[exercise.folder] || undefined}
+            folderPath={folderPath}
+            onStartSync={() => startSync(exercise)}
+            onStopSync={() => stopSync(exercise)}
+            onSavePath={(pasted) => savePath(exercise, pasted)}
+            onOpenInVsCode={() => openExerciseInVsCode(exercise)}
+            onChangeFolder={() => changeFolderFor(exercise)}
           />
         )}
       </div>
