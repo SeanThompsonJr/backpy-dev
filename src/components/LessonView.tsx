@@ -1,11 +1,14 @@
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { SearchCheck } from 'lucide-react'
+import { CircleCheck, SearchCheck } from 'lucide-react'
 import type { LessonEntry } from '../../shared/content'
 import type { UnverifiedClaim } from '../../shared/lesson-parse'
 import { curriculum } from '../data/curriculum'
 import { ExercisePanel, TYPE_ICON, TYPE_LABEL } from './ExercisePanel'
 import { ExplainBack } from './ExplainBack'
+import { FinishList } from './FinishList'
+import { lessonCompletion } from '../progress/completion'
+import { progress as progressStore, useProgress } from '../progress/store'
 import { LessonQuiz } from './LessonQuiz'
 import { afterSubmit, newlyUnlocked, NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { StuckPanel } from './StuckPanel'
@@ -108,10 +111,21 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   const ids = useId()
   const exercise = exercises[selected]
 
-  const [progress, setProgress] = useState<Record<string, ExerciseProgress>>({})
-  const progressRef = useRef(progress)
-  const [explanation, setExplanation] = useState('')
+  // Everything Sean does here is saved (milestone 8). The store is synchronous, so a change is
+  // readable straight away, before React re-renders.
+  const lessonKey = String(fm.id)
+  const saved = useProgress().lessons[lessonKey]
+  const progress: Record<string, ExerciseProgress> = saved?.exercises ?? {}
+  const explanation = saved?.explainBack ?? ''
+  const setExplanation = (explainBack: string) => progressStore.updateLesson(lessonKey, (l) => ({ ...l, explainBack }))
   const progressOf = (folder: string) => progress[folder] ?? NEW_PROGRESS
+
+  const completion = lessonCompletion(entry.lesson, saved)
+  useEffect(() => {
+    if (completion.done && !saved?.completedAt) {
+      progressStore.updateLesson(lessonKey, (l) => ({ ...l, completedAt: new Date().toISOString() }))
+    }
+  }, [completion.done, saved?.completedAt, lessonKey])
 
   const showLeft = (view: LeftView) => {
     setLeftView(view)
@@ -119,10 +133,9 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   }
 
   const updateProgress = (folder: string, change: (p: ExerciseProgress) => ExerciseProgress) => {
-    const before = progressRef.current[folder] ?? NEW_PROGRESS
+    const before: ExerciseProgress = progressStore.lesson(lessonKey)?.exercises[folder] ?? NEW_PROGRESS
     const after = change(before)
-    progressRef.current = { ...progressRef.current, [folder]: after }
-    setProgress(progressRef.current)
+    progressStore.updateExercise(lessonKey, folder, (stored) => ({ ...stored, ...after }))
     return { before, after }
   }
 
@@ -204,14 +217,27 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
             <h1>{fm.title}</h1>
             <p className="lesson-meta">
               {isFixture ? 'Fixture lesson, development only' : `Lesson ${fm.id} of ${curriculum.lessonCount}`}
+              {saved?.completedAt && (
+                <span className="lesson-done" data-testid="lesson-done">
+                  <CircleCheck size={14} aria-hidden="true" />
+                  Complete
+                </span>
+              )}
             </p>
           </header>
           {claims.length > 0 && <VerifyNote claims={claims} />}
           <Markdown className="prose" claims={claims}>
             {body}
           </Markdown>
-          {entry.lesson.quiz && <LessonQuiz quiz={entry.lesson.quiz} />}
+          {entry.lesson.quiz && (
+            <LessonQuiz
+              quiz={entry.lesson.quiz}
+              saved={saved?.quiz}
+              onChange={(quiz) => progressStore.updateLesson(lessonKey, (l) => ({ ...l, quiz }))}
+            />
+          )}
           <ExplainBack question={fm.explain_back} answer={explanation} onChange={setExplanation} />
+          <FinishList parts={completion.parts} complete={!!saved?.completedAt} />
           {!isFixture && <Pager id={fm.id} />}
         </div>
 
@@ -251,6 +277,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
       {exercise && (
         <ExercisePanel
           lessonFolder={entry.lesson.folder}
+          lessonKey={lessonKey}
           collapsed={editorCollapsed}
           onCollapsedChange={changeCollapsed}
           exercises={exercises}

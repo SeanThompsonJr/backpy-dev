@@ -13,18 +13,33 @@ const questionSummary = (q: string) =>
     .replace(/[`*_]/g, '')
     .trim()
 
+export interface SavedQuiz {
+  picks: QuizPicks
+  finished: boolean
+}
+
 interface Props {
   quiz: Quiz
+  /** Answers from an earlier visit */
+  saved?: SavedQuiz
+  /** Called after every answer, finish or restart, to save progress */
+  onChange?: (state: SavedQuiz) => void
 }
 
 /** One question at a time; each pick shows that option's explanation. Only first picks are scored. */
-export function LessonQuiz({ quiz }: Props) {
+export function LessonQuiz({ quiz, saved, onChange }: Props) {
   const { questions } = quiz
-  const [index, setIndex] = useState(0)
-  const [picks, setPicks] = useState<QuizPicks>(() => emptyPicks(questions))
+  // Saved answers only fit if the quiz still has the same number of questions.
+  const restored = saved && saved.picks.length === questions.length ? saved : undefined
+  const [picks, setPicks] = useState<QuizPicks>(() => restored?.picks ?? emptyPicks(questions))
+  const [finished, setFinished] = useState(() => restored?.finished ?? false)
+  // Pick up where Sean left off: the first unanswered question.
+  const [index, setIndex] = useState(() => {
+    const firstOpen = picks.findIndex((p) => p.length === 0)
+    return firstOpen === -1 ? 0 : firstOpen
+  })
   /** The option whose explanation is showing on the current question */
-  const [shown, setShown] = useState<number | undefined>()
-  const [finished, setFinished] = useState(false)
+  const [shown, setShown] = useState<number | undefined>(() => picks[index]?.at(-1))
   const questionRef = useRef<HTMLDivElement>(null)
   const id = useId()
 
@@ -40,14 +55,22 @@ export function LessonQuiz({ quiz }: Props) {
     requestAnimationFrame(() => questionRef.current?.focus({ preventScroll: false }))
   }
   const pick = (option: number) => {
-    setPicks((p) => addPick(p, index, option))
+    const next = addPick(picks, index, option)
+    setPicks(next)
     setShown(option)
+    onChange?.({ picks: next, finished })
+  }
+  const finish = () => {
+    setFinished(true)
+    onChange?.({ picks, finished: true })
   }
   const restart = () => {
-    setPicks(emptyPicks(questions))
+    const empty = emptyPicks(questions)
+    setPicks(empty)
     setShown(undefined)
     setFinished(false)
     setIndex(0)
+    onChange?.({ picks: empty, finished: false })
   }
 
   return (
@@ -155,7 +178,7 @@ export function LessonQuiz({ quiz }: Props) {
               type="button"
               className="btn btn-run btn-small"
               disabled={picked.length === 0}
-              onClick={() => (index === questions.length - 1 ? setFinished(true) : goTo(index + 1))}
+              onClick={() => (index === questions.length - 1 ? finish() : goTo(index + 1))}
             >
               {index === questions.length - 1 ? 'See your score' : 'Next question'}
             </button>

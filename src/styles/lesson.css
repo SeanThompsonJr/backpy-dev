@@ -497,54 +497,6 @@ mark.claim:focus {
   font-size: var(--step--1);
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 36px;
-  padding: 0 var(--space-4);
-  border: 1px solid transparent;
-  border-radius: var(--radius-m);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition:
-    background-color 150ms var(--ease-out),
-    border-color 150ms var(--ease-out);
-}
-.btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.btn-run {
-  border-color: var(--py-blue);
-  background: transparent;
-  color: var(--py-blue);
-}
-.btn-run:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--py-blue) 14%, transparent);
-}
-.btn-submit {
-  background: var(--py-yellow);
-  color: var(--on-yellow);
-}
-.btn-submit:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--py-yellow) 86%, white);
-}
-.btn-ghost {
-  background: transparent;
-  color: var(--text-muted);
-}
-.btn-small {
-  min-height: 32px;
-  padding: 0 var(--space-3);
-  border-color: var(--rule);
-  font-size: 0.875rem;
-}
-.btn-ghost:hover:not(:disabled) {
-  background: var(--panel);
-  color: var(--text);
-}
 .runtime-status {
   color: var(--text-faint);
   font-size: var(--step--1);
@@ -865,6 +817,49 @@ mark.claim:focus {
   color: var(--text-faint);
   font-size: var(--step--1);
   font-weight: 650;
+}
+
+/* ---------- Completion ---------- */
+
+.lesson-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: var(--space-3);
+  padding: 1px 8px;
+  border: 1px solid var(--ok);
+  border-radius: var(--radius-s);
+  color: var(--ok);
+  font-size: var(--step--1);
+  font-weight: 600;
+  vertical-align: 1px;
+}
+.finish-list {
+  margin-top: var(--space-6);
+  font-size: 0.9375rem;
+}
+.finish-list-title {
+  margin-bottom: var(--space-2);
+  font-weight: 650;
+}
+.finish-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.finish-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px 0;
+  color: var(--text-muted);
+}
+.finish-list li svg {
+  flex: none;
+  color: var(--text-faint);
+}
+.finish-list li.finish-done svg {
+  color: var(--ok);
 }
 
 /* ---------- Quiz ---------- */

@@ -16,6 +16,7 @@ import { gradeTestRun } from '../../shared/grade'
 import type { ExerciseType } from '../../shared/schema'
 import type { Exercise } from '../../shared/lesson-parse'
 import { python, type PythonStatus } from '../runtime/python-client'
+import { progress as progressStore } from '../progress/store'
 import { gradeSql } from '../../shared/sql-runner'
 import { sqlRunner, type SqlStatus } from '../runtime/sql-client'
 import { useSqlStatus } from '../runtime/useSqlStatus'
@@ -198,6 +199,8 @@ function CodeExercise(props: CodeExerciseProps) {
 interface Props {
   /** Lesson folder name, used for the VS Code sync path */
   lessonFolder: string
+  /** Where this lesson's progress is saved (the lesson id) */
+  lessonKey: string
   /** The editor side is hidden to a rail, so the lesson can use the full width */
   collapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
@@ -214,6 +217,7 @@ interface Props {
 export function ExercisePanel(props: Props) {
   const {
     lessonFolder,
+    lessonKey,
     collapsed,
     onCollapsedChange,
     exercises,
@@ -225,10 +229,30 @@ export function ExercisePanel(props: Props) {
     onShowSolution,
   } = props
   const openStatus = useRuntimeStatus(runtimeOf(exercises[selected]))
+  // Code and checklist ticks start from what was saved last time, if anything.
+  const saved = () => progressStore.lesson(lessonKey)?.exercises ?? {}
   const [code, setCode] = useState<Record<string, string>>(() =>
-    Object.fromEntries(exercises.map((e) => [e.folder, e.starter ?? ''])),
+    Object.fromEntries(exercises.map((e) => [e.folder, saved()[e.folder]?.code ?? e.starter ?? ''])),
   )
-  const [checks, setChecks] = useState<Record<string, boolean[]>>({})
+  const [checks, setChecks] = useState<Record<string, boolean[]>>(() =>
+    Object.fromEntries(exercises.map((e) => [e.folder, saved()[e.folder]?.checklist ?? []])),
+  )
+
+  // Save code and ticks whenever they change, however they changed (typing, Reset, VS Code).
+  // Nothing is written for an exercise Sean hasn't touched.
+  useEffect(() => {
+    for (const e of exercises) {
+      const stored = saved()[e.folder]
+      const current = code[e.folder]
+      if (current !== (stored?.code ?? e.starter ?? '')) {
+        progressStore.updateExercise(lessonKey, e.folder, (x) => ({ ...x, code: current }))
+      }
+      const ticks = checks[e.folder] ?? []
+      if (JSON.stringify(ticks) !== JSON.stringify(stored?.checklist ?? [])) {
+        progressStore.updateExercise(lessonKey, e.folder, (x) => ({ ...x, checklist: ticks }))
+      }
+    }
+  }, [code, checks])
   const [runs, setRuns] = useState<Record<string, RunState>>({})
   const [links, setLinks] = useState<Record<string, SyncedFile>>({})
   const linksRef = useRef(links)
