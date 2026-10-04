@@ -28,12 +28,24 @@ export interface TestRun {
   output: string
 }
 
+/** What happened to one lesson code block (LESSON_FORMAT.md, "How code blocks run"). */
+export interface BlockResult {
+  /** Name of the exception the block raised, or null if it ran cleanly */
+  raised: string | null
+  message?: string
+  traceback?: string
+}
+
 export interface Backpy {
   /** Runs code as main.py; output goes to Pyodide's stdout/stderr. True if no exception escaped. */
   runCode(code: string): boolean
   /** Runs tests.py against code (as main.py) with backpy's pytest-compatible runner. */
   runTests(code: string, tests: string): TestRun
   loadPackages(packages: string[]): Promise<void>
+  /** Runs a lesson's python blocks in order: run blocks share a namespace, broken blocks use a copy. */
+  runBlocks(blocks: { mode: 'run' | 'broken'; code: string }[]): BlockResult[]
+  /** Line numbers of asserts in tests.py without a message */
+  assertsWithoutMessage(tests: string): number[]
 }
 
 const HELPER_DIR = '/home/pyodide/backpy'
@@ -49,10 +61,14 @@ if ${JSON.stringify(HELPER_DIR)} not in sys.path:
 `)
   const run = py.pyimport('backpy_runner.run') as PyCallable
   const runTestsJson = py.pyimport('backpy_test_runner.run_tests_json') as PyCallable
+  const runBlocksJson = py.pyimport('backpy_runner.run_lesson_blocks') as PyCallable
+  const assertsJson = py.pyimport('backpy_test_runner.asserts_without_message_json') as PyCallable
 
   return {
     runCode: (code) => run(code) as boolean,
     runTests: (code, tests) => JSON.parse(runTestsJson(code, tests) as string) as TestRun,
+    runBlocks: (blocks) => JSON.parse(runBlocksJson(JSON.stringify(blocks)) as string) as BlockResult[],
+    assertsWithoutMessage: (tests) => JSON.parse(assertsJson(tests) as string) as number[],
     loadPackages: async (packages) => {
       if (packages.length) await py.loadPackage(packages, { messageCallback: () => {} })
     },

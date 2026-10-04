@@ -5,6 +5,7 @@ the learner's main.py, and reports each test as pytest would: passed, failed, or
 tests/unit/test-runner.test.ts checks that its outcomes match real pytest in CPython.
 """
 
+import ast
 import importlib
 import inspect
 import io
@@ -72,6 +73,8 @@ def run_tests(main_source, tests_source):
         # Importing tests.py imports main.py; a failure here means nothing could be collected.
         try:
             exec(compile(tests_source, TESTS, "exec"), module.__dict__)
+        except KeyboardInterrupt:
+            raise
         except BaseException as exc:
             return {"collection_error": _describe(exc), "tests": [], "output": collected_out.getvalue()}
 
@@ -99,6 +102,9 @@ def run_tests(main_source, tests_source):
                     "message": str(exc) or None,
                     "traceback": _describe(exc),
                 })
+            except KeyboardInterrupt:
+                # A time limit stopped the tests (the Node validator); stop them all.
+                raise
             except BaseException as exc:
                 results.append({
                     "name": name,
@@ -116,3 +122,10 @@ def run_tests(main_source, tests_source):
 
 def run_tests_json(main_source, tests_source):
     return json.dumps(run_tests(main_source, tests_source))
+
+
+def asserts_without_message_json(tests_source):
+    """Line numbers of asserts in tests.py that have no message. The message is Sean's hint."""
+    tree = ast.parse(tests_source, filename=TESTS)
+    lines = [node.lineno for node in ast.walk(tree) if isinstance(node, ast.Assert) and node.msg is None]
+    return json.dumps(sorted(lines))

@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "validate": "tsx scripts/validate.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",

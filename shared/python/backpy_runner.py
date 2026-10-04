@@ -5,6 +5,7 @@ validator alike. Tracebacks start at the learner's code: backpy's own frames are
 """
 
 import builtins
+import json
 import linecache
 import sys
 import traceback
@@ -40,9 +41,40 @@ def run(source):
             return True
         sys.stderr.write(f"Exited with code {exc.code}\n")
         return False
+    except KeyboardInterrupt:
+        # A time limit stopped the code (the Node validator); let the caller report it.
+        raise
     except BaseException as exc:
         sys.stderr.write(user_traceback(exc))
         return False
     finally:
         sys.stdout.flush()
         sys.stderr.flush()
+
+
+def run_lesson_blocks(blocks_json):
+    """Runs a lesson's code blocks the way LESSON_FORMAT.md describes ("How code blocks run").
+
+    `run` blocks share one namespace, in order, like notebook cells. A `broken` block runs on a
+    copy of the namespace at that point. Returns, per block, whether it raised and what.
+    """
+    namespace = {"__name__": "__main__", "__builtins__": builtins, "input": no_input}
+    results = []
+    for i, block in enumerate(json.loads(blocks_json)):
+        filename = f"<block {i + 1}>"
+        source = block["code"]
+        linecache.cache[filename] = (len(source), None, source.splitlines(True), filename)
+        target = dict(namespace) if block["mode"] == "broken" else namespace
+        try:
+            exec(compile(source, filename, "exec"), target)
+            results.append({"raised": None})
+        except KeyboardInterrupt:
+            raise
+        except BaseException as exc:
+            results.append({
+                "raised": type(exc).__name__,
+                "message": str(exc),
+                "traceback": user_traceback(exc, filenames=(filename,)),
+            })
+    sys.stdout.flush()
+    return json.dumps(results)

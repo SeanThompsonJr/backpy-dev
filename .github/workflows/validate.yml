@@ -1,0 +1,37 @@
+# Every push: types, unit tests, lesson validation (BUILD_PLAN.md, milestone 10), browser tests, build.
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      # uv runs real pytest under CPython, the validator's second opinion on every exercise.
+      - uses: astral-sh/setup-uv@v7
+
+      # Pyodide packages (pydantic, httpx, ...) the validator downloads for exercises.
+      - uses: actions/cache@v6
+        with:
+          path: .cache/pyodide-packages
+          key: pyodide-packages-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run validate
+
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+
+      - run: npm run build

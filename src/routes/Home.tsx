@@ -5,6 +5,7 @@ import { pad, type Section, type Tier } from '../../shared/curriculum'
 import { CoverageTag } from '../components/CoverageTag'
 import { ProgressStrip } from '../components/ProgressStrip'
 import { useProgress } from '../progress/store'
+import { PGLITE_VERSION, PYODIDE_VERSION, runtimeSummary } from '../../shared/runtime-versions'
 
 function jumpTo(section: Section) {
   const heading = document.getElementById(`section-${section.slug}`)
@@ -140,6 +141,9 @@ export function Home() {
           })}
         </div>
       </div>
+      <footer className="site-footer" data-testid="runtime-versions">
+        {runtimeSummary(PYODIDE_VERSION, PGLITE_VERSION)} The lesson checker uses the same versions.
+      </footer>
     </div>
   )
 }

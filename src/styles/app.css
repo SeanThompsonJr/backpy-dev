@@ -505,6 +505,14 @@ main:focus {
   text-align: center;
 }
 
+.site-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rule);
+  color: var(--text-faint);
+  font-size: var(--step--1);
+}
+
 /* ---------- Simple message pages ---------- */
 
 .page-message {

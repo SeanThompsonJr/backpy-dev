@@ -1,45 +1,19 @@
 // backpy's test runner (Pyodide, in Node) must agree with real pytest (CPython) on every test:
 // same outcome, and the same assert message, since that message is the hint Sean sees.
-import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { loadNodePython, type NodePython } from '../../scripts/lib/pyodide-node'
+import { runRealPytest } from '../../scripts/lib/pytest-cpython'
 import type { TestResult } from '../../shared/pyodide-core'
 
 let python: NodePython
-const scratch = mkdtempSync(join(tmpdir(), 'backpy-pytest-'))
 
 beforeAll(async () => {
   python = await loadNodePython()
 }, 120_000)
-afterAll(() => rmSync(scratch, { recursive: true, force: true }))
 
-const decode = (s: string) =>
-  s.replace(/&#10;/g, '\n').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
-
-/** Runs real pytest under CPython (via uv) and reads its JUnit report. */
-function realPytest(name: string, main: string, tests: string) {
-  const dir = join(scratch, name)
-  mkdirSync(dir, { recursive: true })
-  writeFileSync(join(dir, 'main.py'), main)
-  writeFileSync(join(dir, 'tests.py'), tests)
-  const run = spawnSync(
-    'uv',
-    ['run', '--quiet', '--no-project', '--python', '3.14', '--with', 'pytest==9.0.2', 'pytest', '-q', '-p', 'no:cacheprovider', '--junitxml=report.xml', 'tests.py'],
-    { cwd: dir, encoding: 'utf8' },
-  )
-  if (run.error) throw new Error(`Couldn't run uv: ${run.error.message}`)
-  const xml = readFileSync(join(dir, 'report.xml'), 'utf8')
-  const results = new Map<string, { outcome: string; message?: string }>()
-  for (const m of xml.matchAll(/<testcase [^>]*?\sname="([^"]+)"[^>]*?(?:\/>|>([\s\S]*?)<\/testcase>)/g)) {
-    const body = m[2] ?? ''
-    const failure = /<(failure|error) message="([^"]*)"/.exec(body)
-    results.set(m[1], failure ? { outcome: failure[1] === 'failure' ? 'failed' : 'error', message: decode(failure[2]) } : { outcome: 'passed' })
-  }
-  return results
-}
+const realPytest = (_name: string, main: string, tests: string) => runRealPytest(main, tests).tests
 
 /** pytest's first line, without the exception name, is what backpy shows as the message. */
 function pytestMessage(message: string | undefined, kind: TestResult['kind']) {
