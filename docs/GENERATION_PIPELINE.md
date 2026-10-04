@@ -32,8 +32,8 @@ not remembered from a previous chat.
    either removed or listed in the lesson's `unverified_claims`, as the exact quote from the
    lesson plus what to check and where (format in LESSON_FORMAT.md). The site underlines each
    quote in place and lists them in a "verify this" note. Nothing uncertain is presented as fact.
-6. **Close the section**: add new concepts to concepts.json, write SUMMARY.md (what was
-   taught, exact terms and conventions used), then commit.
+6. **Close the section**: add new concepts to concepts.json (each with the analogy its lesson
+   used), write SUMMARY.md (what was taught, exact terms and conventions used), then commit.
 
 ## What the validator checks
 - Front matter and JSON files match LESSON_FORMAT.md.

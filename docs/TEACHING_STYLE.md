@@ -40,6 +40,30 @@ backpy uses AI to explain, never to do the exercise for him.
   lessons where SQL is the subject or genuinely part of the concept (e.g. a data-layer lesson),
   never as a side preview in a Python lesson. The same goes for any other tool or language.
 
+## Make it memorable
+Every concept is tied to an everyday situation Sean can replay in his head, and the same
+situations come back lesson after lesson, so new ideas hang on pictures he already has.
+- **The anchor: a restaurant.** Sean thinks of the request–response cycle this way, so every
+  web, API, server and database lesson builds on it:
+  | Restaurant | Backend |
+  |---|---|
+  | Customer | Client (browser, app, another service) |
+  | Server (the waiter) | The backend server: takes the order, checks it, carries it to the kitchen, brings the plate back |
+  | Kitchen | Database: where the food is stored and prepared; customers never walk in |
+  | Menu | The API: the things you're allowed to order, and how to ask |
+  | Order ticket | The request (what you want and the details) |
+  | The plate brought back | The response |
+  | "We're out of that" / "That's not on the menu" | 404 / 400 or 422 |
+  Extend it naturally: a reservation list for authentication, a ticket rail for a queue,
+  a prep station for a cache. Keep each piece meaning the same thing in every lesson.
+- **Other concepts get one common, relatable situation too** (a phone's contact list for a
+  dict, a queue at a coffee shop for a queue). Prefer situations from everyday life over
+  computer-science metaphors.
+- **Say where the analogy stops working**, in one sentence, so it never misleads (e.g. a real
+  server handles thousands of customers at once).
+- **Reuse before inventing.** If concepts.json already gives a concept an analogy, use that
+  one. Record the analogy for every new concept in concepts.json.
+
 ## Exercises
 - **Bug hunts wherever possible.** If the concept has a common mistake, at least one exercise
   is a bug hunt that plants that mistake. Real jobs are mostly reading and fixing code.

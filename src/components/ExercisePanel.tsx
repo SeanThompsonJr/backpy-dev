@@ -33,6 +33,8 @@ import {
   writeFile,
 } from '../runtime/vscode-folder'
 import { EditorRail } from './EditorRail'
+import { CopyToClaude } from './CopyToClaude'
+import { buildClaudePrompt, lastErrorText, type PromptInput } from './claude-prompt'
 import { VsCodeBanner, type SyncedFile } from './VsCodeBanner'
 import { CodeEditor } from './CodeEditor'
 import { NEW_PROGRESS, type ExerciseProgress } from './learning'
@@ -201,6 +203,8 @@ interface Props {
   lessonFolder: string
   /** Where this lesson's progress is saved (the lesson id) */
   lessonKey: string
+  /** What Copy to Claude says about the lesson; the panel adds the exercise, code and last error */
+  promptBase: Omit<PromptInput, 'exercise' | 'lastError' | 'explainBack'>
   /** The editor side is hidden to a rail, so the lesson can use the full width */
   collapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
@@ -218,6 +222,7 @@ export function ExercisePanel(props: Props) {
   const {
     lessonFolder,
     lessonKey,
+    promptBase,
     collapsed,
     onCollapsedChange,
     exercises,
@@ -481,6 +486,25 @@ export function ExercisePanel(props: Props) {
     tabs.current[next]?.focus()
   }
 
+  const getPrompt = () => {
+    const ex = exercises[selected]
+    const stored = progressOf(ex)
+    return buildClaudePrompt({
+      ...promptBase,
+      explainBack: progressStore.lesson(lessonKey)?.explainBack ?? '',
+      exercise: {
+        title: ex.meta.title,
+        type: TYPE_LABEL[ex.meta.type],
+        instructions: ex.instructions ?? '',
+        language: ex.meta.type === 'sql' ? 'sql' : 'python',
+        code: code[ex.folder] ?? '',
+        failedSubmits: stored.failedSubmits,
+        solved: stored.solved,
+      },
+      lastError: lastErrorText(runs[ex.folder]),
+    })
+  }
+
   const current = progressOf(exercise)
   const run = runs[exercise.folder] ?? IDLE
 
@@ -503,6 +527,7 @@ export function ExercisePanel(props: Props) {
           onExpand={() => onCollapsedChange(false)}
           onRun={expandAnd(() => runCode(exercise))}
           onSubmit={expandAnd(() => submitCode(exercise))}
+          copyButton={<CopyToClaude getPrompt={getPrompt} variant="rail" />}
         />
       )}
       {/* Stays mounted while hidden, so edits, output and VS Code syncing carry on. */}
@@ -537,18 +562,21 @@ export function ExercisePanel(props: Props) {
               ))}
             </div>
           )}
-          <button
-            type="button"
-            className="btn btn-ghost btn-small hide-editor"
-            onClick={() => onCollapsedChange(true)}
-            aria-label="Hide editor"
-            title="Hide editor"
-            aria-expanded={true}
-            aria-controls={bodyId}
-          >
-            <PanelRightClose size={16} aria-hidden="true" />
-            <span className="hide-editor-label">Hide editor</span>
-          </button>
+          <div className="work-head-actions">
+            <CopyToClaude getPrompt={getPrompt} />
+            <button
+              type="button"
+              className="btn btn-ghost btn-small hide-editor"
+              onClick={() => onCollapsedChange(true)}
+              aria-label="Hide editor"
+              title="Hide editor"
+              aria-expanded={true}
+              aria-controls={bodyId}
+            >
+              <PanelRightClose size={16} aria-hidden="true" />
+              <span className="work-head-label">Hide editor</span>
+            </button>
+          </div>
         </div>
         <div
           role={exercises.length > 1 ? 'tabpanel' : undefined}

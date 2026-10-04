@@ -7,6 +7,9 @@ import { curriculum } from '../data/curriculum'
 import { ExercisePanel, TYPE_ICON, TYPE_LABEL } from './ExercisePanel'
 import { ExplainBack } from './ExplainBack'
 import { FinishList } from './FinishList'
+import { CopyToClaude } from './CopyToClaude'
+import { buildClaudePrompt } from './claude-prompt'
+import { describeConcepts } from '../data/concepts'
 import { lessonCompletion } from '../progress/completion'
 import { progress as progressStore, useProgress } from '../progress/store'
 import { LessonQuiz } from './LessonQuiz'
@@ -120,6 +123,14 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   const setExplanation = (explainBack: string) => progressStore.updateLesson(lessonKey, (l) => ({ ...l, explainBack }))
   const progressOf = (folder: string) => progress[folder] ?? NEW_PROGRESS
 
+  // What Copy to Claude says about the lesson itself; ExercisePanel adds code and errors.
+  const promptBase = {
+    lessonLabel: isFixture ? 'Fixture lesson' : `Lesson ${fm.id} of ${curriculum.lessonCount}, ${section?.name ?? fm.section}`,
+    lessonTitle: fm.title,
+    concepts: describeConcepts(fm.concepts_introduced),
+    conceptText: entry.lesson.sections.find((s) => s.title === 'The concept')?.markdown ?? '',
+  }
+
   const completion = lessonCompletion(entry.lesson, saved)
   useEffect(() => {
     if (completion.done && !saved?.completedAt) {
@@ -224,6 +235,15 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
                 </span>
               )}
             </p>
+            {!exercise && (
+              <div className="lesson-head-actions">
+                <CopyToClaude
+                  getPrompt={() =>
+                    buildClaudePrompt({ ...promptBase, explainBack: progressStore.lesson(lessonKey)?.explainBack ?? '' })
+                  }
+                />
+              </div>
+            )}
           </header>
           {claims.length > 0 && <VerifyNote claims={claims} />}
           <Markdown className="prose" claims={claims}>
@@ -278,6 +298,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
         <ExercisePanel
           lessonFolder={entry.lesson.folder}
           lessonKey={lessonKey}
+          promptBase={promptBase}
           collapsed={editorCollapsed}
           onCollapsedChange={changeCollapsed}
           exercises={exercises}

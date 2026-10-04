@@ -6,7 +6,7 @@ If the format must change, change this file first, then the validator, then the 
 ```
 content/
   _registry/
-    concepts.json        # every concept: id, name, one-line definition, lesson where introduced
+    concepts.json        # every concept: id, name, one-line definition, lesson, analogy
     conventions.json     # library/version rules and banned patterns
   tier-1/
     01-orientation/
@@ -208,6 +208,20 @@ Every option gets an explanation. 3-6 questions per lesson. Include at least one
 The site shows one question at a time. Picking an option shows that option's explanation;
 Sean can pick others to read theirs too. Only his first pick on each question counts toward
 the score.
+
+## concepts.json
+One entry per concept, added when the section that introduces it is closed:
+```json
+{ "concepts": [ {
+  "id": "http-request",
+  "name": "HTTP request",
+  "definition": "A message a client sends to a server asking for something.",
+  "introduced_in": 2,
+  "analogy": "The order ticket a customer hands the server (TEACHING_STYLE.md, the restaurant)."
+} ] }
+```
+`analogy` is the everyday picture the lesson used. Later lessons reuse it rather than inventing
+a new one, and Copy to Claude passes it along so Claude tutors with the same picture.
 
 ## checkpoint.md
 The section's checkpoint from curriculum.json, broken into a done-when checklist.

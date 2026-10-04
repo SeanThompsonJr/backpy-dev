@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { CircleCheck, CircleX, FileCode, LoaderCircle, PanelRightOpen, Play, Send } from 'lucide-react'
 import type { RunState } from './OutputPane'
 
@@ -12,6 +13,8 @@ interface Props {
   onExpand: () => void
   onRun: () => void
   onSubmit: () => void
+  /** Copy to Claude, so it's reachable while coding in VS Code */
+  copyButton?: ReactNode
 }
 
 function LastResult({ run }: { run: RunState }) {
@@ -40,7 +43,17 @@ function LastResult({ run }: { run: RunState }) {
  * The editor side, collapsed to a strip so the lesson can use the full width while Sean codes
  * in VS Code. Run and Submit stay one click away and open the editor side to show the result.
  */
-export function EditorRail({ panelId, showRunButtons, busy, run, linkedPath, onExpand, onRun, onSubmit }: Props) {
+export function EditorRail({
+  panelId,
+  showRunButtons,
+  busy,
+  run,
+  linkedPath,
+  onExpand,
+  onRun,
+  onSubmit,
+  copyButton,
+}: Props) {
   return (
     <aside className="editor-rail" aria-label="Editor (hidden)" data-testid="editor-rail">
       <button type="button" className="rail-button" onClick={onExpand} aria-expanded={false} aria-controls={panelId}>
@@ -59,6 +72,7 @@ export function EditorRail({ panelId, showRunButtons, busy, run, linkedPath, onE
           </button>
         </>
       )}
+      {copyButton}
       <LastResult run={run} />
       {linkedPath && (
         <span className="rail-linked" title={`Editing ${linkedPath} in VS Code`}>

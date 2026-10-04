@@ -22,6 +22,8 @@ Check:
    modes covered? Is every instructions.md readable at a glance, and does its Example show
    the exact expected output for every case the tests check (both True and False, empty and
    non-empty)? A case the tests check but the Example doesn't show is a must-fix.
+   Is each concept tied to a common, relatable situation, reusing the restaurant anchor and
+   any analogy already in concepts.json, and does the lesson say where the analogy stops working?
 5. **Coverage**: compare with the section's BRIEF.md and any reference/ material. What did a
    good course cover that this section missed? (Never suggest copying reference text.)
 
