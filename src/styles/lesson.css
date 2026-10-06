@@ -1347,9 +1347,11 @@ mark.claim:focus {
   .prose {
     font-size: 1.0625rem;
   }
+  /* Edge to edge on phones, so a rule above and below keeps them apart from the page. */
   .code-block {
     margin-left: calc(-1 * var(--space-4));
     margin-right: calc(-1 * var(--space-4));
+    border-block: 1px solid var(--rule);
     border-radius: 0;
   }
   .work-pane {
@@ -1375,9 +1377,17 @@ mark.claim:focus {
   .left-view-lesson[hidden] {
     display: block;
   }
+  /* The page background, so code blocks in the scenario and the solution stand out from it. */
   .exercise-brief-inline {
     display: block;
     padding: var(--space-4) var(--space-4) var(--space-3);
+    border-bottom: 1px solid var(--rule);
+    background: var(--ink);
+  }
+  /* Quiz, explain-back and the next lesson, after the exercises. */
+  .lesson-after {
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
   }
   .exercise-brief-inline h2 {
     margin-bottom: var(--space-2);

@@ -16,6 +16,7 @@ import { LessonQuiz } from './LessonQuiz'
 import { afterSubmit, newlyUnlocked, NEW_PROGRESS, type ExerciseProgress } from './learning'
 import { StuckPanel } from './StuckPanel'
 import { Markdown } from './Markdown'
+import { NARROW_SCREEN, TOUCH_ONLY, useMediaQuery } from './useMediaQuery'
 
 function showClaim(index: number) {
   const mark = document.getElementById(`claim-${index}`)
@@ -98,7 +99,12 @@ function saveCollapsed(collapsed: boolean) {
 }
 
 export function LessonView({ entry }: { entry: LessonEntry }) {
-  const { frontMatter: fm, body, exercises, claims } = entry.lesson
+  const { frontMatter: fm, body, claims } = entry.lesson
+  // "On your machine" exercises need a terminal, so phones and tablets leave them out, both from
+  // the exercises and from what finishing the lesson asks for.
+  const touchOnly = useMediaQuery(TOUCH_ONLY)
+  const exercises = touchOnly ? entry.lesson.exercises.filter((e) => e.meta.type !== 'local') : entry.lesson.exercises
+  const narrow = useMediaQuery(NARROW_SCREEN)
   const isFixture = entry.sectionDir === '_fixtures'
   const planned = curriculum.lessonById.get(fm.id)
   const section = planned && curriculum.sectionByNumber.get(planned.sectionNumber)
@@ -112,7 +118,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
   }
   const textPane = useRef<HTMLElement>(null)
   const ids = useId()
-  const exercise = exercises[selected]
+  const exercise = exercises[Math.min(selected, exercises.length - 1)]
 
   // Everything Sean does here is saved (milestone 8). The store is synchronous, so a change is
   // readable straight away, before React re-renders.
@@ -131,7 +137,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
     conceptText: entry.lesson.sections.find((s) => s.title === 'The concept')?.markdown ?? '',
   }
 
-  const completion = lessonCompletion(entry.lesson, saved)
+  const completion = lessonCompletion({ ...entry.lesson, exercises }, saved)
   useEffect(() => {
     if (completion.done && !saved?.completedAt) {
       progressStore.updateLesson(lessonKey, (l) => ({ ...l, completedAt: new Date().toISOString() }))
@@ -174,6 +180,23 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
     setSelected(index)
     showLeft('exercise')
   }
+
+  // Quiz, explain-back and the way on. When the page stacks, they come after the exercises.
+  const stackedAfterWork = narrow && exercises.length > 0
+  const afterLesson = (
+    <>
+      {entry.lesson.quiz && (
+        <LessonQuiz
+          quiz={entry.lesson.quiz}
+          saved={saved?.quiz}
+          onChange={(quiz) => progressStore.updateLesson(lessonKey, (l) => ({ ...l, quiz }))}
+        />
+      )}
+      <ExplainBack question={fm.explain_back} answer={explanation} onChange={setExplanation} />
+      <FinishList parts={completion.parts} complete={!!saved?.completedAt} />
+      {!isFixture && <Pager id={fm.id} />}
+    </>
+  )
 
   const crumb = (
     <p className="crumb">
@@ -249,16 +272,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
           <Markdown className="prose" claims={claims} anchors>
             {body}
           </Markdown>
-          {entry.lesson.quiz && (
-            <LessonQuiz
-              quiz={entry.lesson.quiz}
-              saved={saved?.quiz}
-              onChange={(quiz) => progressStore.updateLesson(lessonKey, (l) => ({ ...l, quiz }))}
-            />
-          )}
-          <ExplainBack question={fm.explain_back} answer={explanation} onChange={setExplanation} />
-          <FinishList parts={completion.parts} complete={!!saved?.completedAt} />
-          {!isFixture && <Pager id={fm.id} />}
+          {!stackedAfterWork && afterLesson}
         </div>
 
         {exercise && (
@@ -310,6 +324,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
           onShowSolution={showSolution}
         />
       )}
+      {stackedAfterWork && <div className="lesson-text lesson-after">{afterLesson}</div>}
     </div>
   )
 }

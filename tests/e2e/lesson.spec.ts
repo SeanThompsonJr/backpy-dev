@@ -175,4 +175,51 @@ test.describe('phone', () => {
     const bar = (await page.locator('.topbar').boundingBox())!
     await expect.poll(async () => (await answer.boundingBox())!.y).toBeGreaterThanOrEqual(bar.y + bar.height)
   })
+
+  test('the quiz, explain-back and finish list come after the exercises', async ({ page }) => {
+    await openFixture(page)
+    const work = (await page.getByRole('region', { name: 'Exercises' }).boundingBox())!
+    for (const part of [page.getByTestId('quiz'), page.getByTestId('explain-back'), page.getByTestId('finish-list')]) {
+      expect((await part.boundingBox())!.y).toBeGreaterThanOrEqual(work.y + work.height - 1)
+    }
+  })
+
+  test('code blocks in the scenario and the solution stand out from the background behind them', async ({ page }) => {
+    await openFixture(page)
+    const colors = await page
+      .getByTestId('exercise-brief-inline')
+      .locator('.code-block')
+      .first()
+      .evaluate((block) => {
+        const painted = (el: Element) => getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)'
+        let behind = block.parentElement
+        while (behind && !painted(behind)) behind = behind.parentElement
+        return { block: getComputedStyle(block).backgroundColor, behind: behind && getComputedStyle(behind).backgroundColor }
+      })
+    expect(colors.behind).not.toBeNull()
+    expect(colors.block).not.toBe(colors.behind)
+  })
+
+  test.describe('on a touch-only device', () => {
+    test.use({ hasTouch: true, isMobile: true })
+
+    test('"On your machine" exercises are left out, and finishing the lesson doesn\'t ask for them', async ({ page }) => {
+      await openFixture(page)
+      const tabs = page.getByRole('tablist', { name: 'Exercises' }).getByRole('tab')
+      await expect(tabs).toHaveCount(3)
+      await expect(tabs.filter({ hasText: 'On your machine' })).toHaveCount(0)
+      await expect(page.getByTestId('finish-list')).not.toContainText('Run the fix on your own machine')
+      await expect(page.getByTestId('finish-list')).toContainText('Fix the shared-team bug')
+    })
+  })
+})
+
+test.describe('desktop with a mouse', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('"On your machine" exercises are there, and count toward finishing the lesson', async ({ page }) => {
+    await openFixture(page)
+    await expect(exerciseTab(page, /On your machine/)).toBeVisible()
+    await expect(page.getByTestId('finish-list')).toContainText('Run the fix on your own machine')
+  })
 })
