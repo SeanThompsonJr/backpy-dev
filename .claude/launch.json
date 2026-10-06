@@ -23,6 +23,21 @@
         "--strictPort"
       ],
       "port": 4173
+    },
+    {
+      "name": "backpy-pages",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "--base=/backpy-dev/",
+        "--outDir",
+        "dist-pages",
+        "--port",
+        "4174",
+        "--strictPort"
+      ],
+      "port": 4174
     }
   ]
 }

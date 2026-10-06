@@ -41,10 +41,13 @@ Each milestone ends with something visible in the browser and a test that proves
     Runs in GitHub Actions on every push.
 11. **Generation tooling**: the `/generate-section` command and the `lesson-reviewer` subagent
     work end to end. Then generate Section 1 (Orientation) for real.
+12. **GitHub Pages** (moved up from Phase 2 at Sean's request, so he can study on his phone):
+    every push to `main` that passes CI is built for `/backpy-dev/` and published to
+    https://seanthompsonjr.github.io/backpy-dev/. The repo is public. Progress stays on each
+    device; Export/Import moves it between them.
 
 ## Phase 2 (later, not v1)
 - **backpy CLI (IDE sync)**: `backpy pull <lesson>` copies an exercise into a local folder for
   your own IDE; `backpy check <lesson>` runs its tests with pytest and writes the result to
   a file the locally served site reads, so local passes show up as progress. Needed from
   Tier 2 (FastAPI, Docker, Git checkpoints).
-- Deploy as a static site if studying on other devices.

@@ -165,4 +165,14 @@ test.describe('phone', () => {
     await expect(inline).toContainText('I made a brand-new team')
     await expect(page.getByText('Python creates the default')).toBeVisible()
   })
+
+  test('a Check yourself question scrolls the page to its answer, clear of the top bar', async ({ page }) => {
+    await openFixture(page)
+    await leftSide(page).getByRole('button', { name: /Why is None a good marker/ }).click()
+    const answer = page.locator('#lesson-worked-example')
+    await expect(answer).toBeFocused()
+    await expect(answer).toBeInViewport()
+    const bar = (await page.locator('.topbar').boundingBox())!
+    await expect.poll(async () => (await answer.boundingBox())!.y).toBeGreaterThanOrEqual(bar.y + bar.height)
+  })
 })

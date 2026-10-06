@@ -8,7 +8,7 @@ export function App() {
       </a>
       <header className="topbar">
         <Link to="/" className="wordmark" aria-label="backpy home">
-          <img src="/favicon.svg" alt="" width="24" height="24" />
+          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="24" height="24" />
           backpy
         </Link>
       </header>

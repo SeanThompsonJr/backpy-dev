@@ -173,7 +173,7 @@ function CodeExercise(props: CodeExerciseProps) {
                   Edit in VS Code
                 </button>
               ) : (
-                <p className="vscode-unsupported">Editing in VS Code needs Chrome or Edge.</p>
+                <p className="vscode-unsupported">Editing in VS Code needs Chrome or Edge on a computer.</p>
               ))}
             <p className="runtime-status" role="status">
               {STATUS_TEXT[runtime][status]}
