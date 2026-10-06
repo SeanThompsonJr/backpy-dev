@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Which piece stores PokeTeam's teams so they survive a restart?",
+      "options": [
+        "The client",
+        "The API",
+        "The database",
+        "The response"
+      ],
+      "answer": 2,
+      "explanations": [
+        "The client sends requests. It doesn't keep PokeTeam's data.",
+        "The API lists what clients can ask for. It doesn't store anything itself.",
+        "Right. The database keeps data safe across restarts, and only the server talks to it.",
+        "A response carries data back to the client for one request, then it's gone."
+      ]
+    },
+    {
+      "q": "Predict the output:\n\n```python\nimport json\n\ndata = json.loads('{\"name\": \"eevee\", \"level\": 5}')\nprint(data[\"level\"] + 1)\n```",
+      "options": [
+        "`51`",
+        "`6`",
+        "A `TypeError`",
+        "`level6`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "`51` would mean two strings were joined. In JSON, `5` without quotes is a number, so `json.loads` gives the int `5`. (Even the string `\"5\"` plus the int `1` would raise a `TypeError`, not join them.)",
+        "Right. `json.loads` turns the JSON text into a dict, and the JSON number `5` becomes the Python `int` `5`.",
+        "It would fail if you used the string directly. After `json.loads`, `data` is a dict, so the lookup works.",
+        "`data[\"level\"]` gives the value, `5`, not the key."
+      ]
+    },
+    {
+      "q": "A bug in PokeTeam's code makes it crash while handling a request. Which status code should the client get?",
+      "options": [
+        "`200`",
+        "`404`",
+        "`422`",
+        "`500`"
+      ],
+      "answer": 3,
+      "explanations": [
+        "`200` means everything went fine. It didn't.",
+        "`404` means \"not found\". The thing may well exist; the server broke while handling it.",
+        "`422` means the client's data failed a check. The client did nothing wrong here.",
+        "Right. `5xx` codes mean the server failed: something went wrong on the restaurant's side, not with the order."
+      ]
+    },
+    {
+      "q": "A teammate puts PokeTeam's database password in the frontend code, so the page can load teams without going through the server. What's the problem?",
+      "options": [
+        "The page will load more slowly",
+        "Anyone can read the password and do whatever they like to the database",
+        "Nothing, as long as the password is long",
+        "Browsers can't talk to databases"
+      ],
+      "answer": 1,
+      "explanations": [
+        "Speed isn't the issue. Who can read the password is.",
+        "Right. Everything sent to the browser can be read, so anyone could skip the server's checks and read, change or delete any team.",
+        "A long password doesn't help once it's sitting in code that every user downloads.",
+        "The technical details don't matter here. Even if it worked, it would skip every check the server makes."
+      ]
+    },
+    {
+      "q": "PokeTeam's server asks PokeAPI for Pikachu's data. In that conversation, what is PokeTeam's server?",
+      "options": [
+        "The client",
+        "The server",
+        "The database",
+        "The API"
+      ],
+      "answer": 0,
+      "explanations": [
+        "Right. Whoever sends the request is the client. PokeTeam's server is the customer this time, and PokeAPI is the restaurant.",
+        "PokeAPI is the server here: it receives the request and answers it.",
+        "Neither side is a database in this conversation. PokeAPI may use one behind the scenes.",
+        "PokeAPI's API is the menu PokeTeam orders from. PokeTeam's server is the one ordering."
+      ]
+    }
+  ]
+}

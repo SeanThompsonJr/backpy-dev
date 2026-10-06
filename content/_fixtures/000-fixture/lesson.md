@@ -23,6 +23,8 @@ It uses every feature in LESSON_FORMAT.md once.
 
 ## The concept
 
+### Python defaults
+
 A **default argument** is the value a parameter gets when the caller leaves it out.
 Python creates the default **once, when `def` runs**, not each time the function is called.
 For numbers and strings that never matters, because they can't change. For a list or a dict
@@ -38,6 +40,12 @@ print(log_battle("onix fainted"))
 ```
 
 The second call printed both events. The default list was created once and kept growing.
+
+### Check yourself
+
+- [When does Python create the value of a default argument?](#python-defaults)
+
+### Postgres column defaults
 
 A **column default** is the value Postgres stores when an `INSERT` leaves a column out.
 Postgres evaluates a column default for every inserted row, so a default like
@@ -94,6 +102,6 @@ default list, every failed or half-finished call can leave items in the list for
 
 ## Check yourself
 
-- When is a Python default created, and when is a Postgres column default evaluated?
-- Which kinds of Python default values are safe, and which aren't?
-- Why is `None` a good marker for "not passed"?
+- [When is a Postgres column default evaluated, compared with a Python default?](#postgres-column-defaults)
+- [Which kinds of Python default values are safe, and which aren't?](#python-defaults)
+- [Why is `None` a good marker for "not passed"?](#worked-example)

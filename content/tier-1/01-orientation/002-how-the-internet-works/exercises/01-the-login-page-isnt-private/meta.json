@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "The login page isn't private", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "`startswith(\"http\")` is true for both `http://` and `https://`, because \"http\" is the start of both. So a plain, unencrypted login page counted as secure. Checking for the whole `https://` prefix only accepts addresses that use TLS." }

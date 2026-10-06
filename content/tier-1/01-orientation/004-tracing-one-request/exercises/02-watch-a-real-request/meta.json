@@ -1,0 +1,7 @@
+{ "type": "local", "title": "Watch a real request", "runtime": "local",
+  "checklist": [
+    "You found the pikachu request in the Network tab",
+    "You read its method (GET) and its status code (200)",
+    "You read how long it took in the Timing tab",
+    "You found base_experience in the response"
+  ] }

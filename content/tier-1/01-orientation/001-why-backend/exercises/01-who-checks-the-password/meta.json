@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "Who checks the password?", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "Two jobs that protect players ran in the browser: the password check and the rule against deleting other players' teams. The user controls the browser, so they can change or skip that code, or send a request without the page at all. Both now run on the backend. Hiding the Delete button stays on the frontend: it only changes what the player sees, and it was never what stopped the delete." }

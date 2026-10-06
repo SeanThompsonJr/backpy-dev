@@ -246,7 +246,7 @@ export function LessonView({ entry }: { entry: LessonEntry }) {
             )}
           </header>
           {claims.length > 0 && <VerifyNote claims={claims} />}
-          <Markdown className="prose" claims={claims}>
+          <Markdown className="prose" claims={claims} anchors>
             {body}
           </Markdown>
           {entry.lesson.quiz && (

@@ -1,0 +1,6 @@
+{ "type": "local", "title": "Look up a real address", "runtime": "local",
+  "checklist": [
+    "nslookup printed at least one address for pokeapi.co",
+    "You found who issued pokeapi.co's certificate",
+    "You can say in one sentence what DNS did, and in one sentence what TLS did"
+  ] }

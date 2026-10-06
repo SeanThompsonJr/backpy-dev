@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Where does frontend code run?",
+      "options": [
+        "On the user's own device, in their browser or phone",
+        "On computers the company controls",
+        "Inside the database",
+        "Half on each, depending on the page"
+      ],
+      "answer": 0,
+      "explanations": [
+        "Right. That's why the user controls it, and why the backend can't trust it.",
+        "That's the backend: code on computers the company controls.",
+        "The database stores data. It's on the backend side, and the user never reaches it directly.",
+        "The split isn't per page. Every page's frontend runs on the user's device, and the backend runs on the company's computers."
+      ]
+    },
+    {
+      "q": "Predict the output:\n\n```python\nMAX_TEAM_SIZE = 6\n\ndef save_team(name, members):\n    if len(members) > MAX_TEAM_SIZE:\n        return \"Rejected\"\n    return f\"Saved {name}\"\n\nprint(save_team(\"Sun\", [\"torkoal\"] * 6))\n```",
+      "options": [
+        "`Rejected`",
+        "`Saved Sun`",
+        "`Saved torkoal`",
+        "A `TypeError`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "The team has exactly 6 members, and `6 > 6` is `False`, so the check lets it through.",
+        "Right. Six members is allowed: only more than six is rejected.",
+        "The f-string uses `name`, which is `\"Sun\"`. The members aren't part of the message.",
+        "`[\"torkoal\"] * 6` builds a list of six strings, and `len` works on it. Nothing is the wrong type."
+      ]
+    },
+    {
+      "q": "A player skips the \"New team\" form and sends a save request with 50 Mewtwo straight to the backend. What stops it?",
+      "options": [
+        "The form's six-Pokémon limit",
+        "The backend's own team-size check",
+        "The browser",
+        "Nothing can stop a request like that"
+      ],
+      "answer": 1,
+      "explanations": [
+        "The form never ran: the request didn't come through it. That's why the form's check protects nothing on its own.",
+        "Right. The backend checks every request itself, however it arrived, so the bad team is rejected.",
+        "The player controls their browser, and here they went around the page entirely.",
+        "The backend can stop it, as long as it checks every request instead of trusting the client."
+      ]
+    },
+    {
+      "q": "Which of these jobs must run on the **backend**?",
+      "options": [
+        "Showing a loading spinner",
+        "Laying out the team page",
+        "Changing a button's colour when you hover over it",
+        "Checking that the password is correct"
+      ],
+      "answer": 3,
+      "explanations": [
+        "A spinner is just something the user sees. If they hide it, nobody else is affected.",
+        "Layout is what the user sees, so it's a frontend job.",
+        "That's purely visual, so it's a frontend job.",
+        "Right. The password check protects an account. Anything on the user's device can be skipped, so the check must run on the backend."
+      ]
+    },
+    {
+      "q": "A teammate puts PokeTeam's secret key for a paid service into the frontend code, so the page can call that service directly. What's the problem?",
+      "options": [
+        "Frontend code runs on the user's device, so anyone can read the key and use it",
+        "The page will load more slowly",
+        "Nothing, as long as the key is in a separate file",
+        "The service won't accept keys sent from a browser"
+      ],
+      "answer": 0,
+      "explanations": [
+        "Right. Everything sent to the browser can be read by the user. The key belongs on the backend, which calls the service on the page's behalf.",
+        "Speed isn't the issue. The issue is who can see the key.",
+        "A separate file is still sent to the browser, so anyone can still read it.",
+        "Many services would accept it. That's exactly why a leaked key is dangerous."
+      ]
+    }
+  ]
+}

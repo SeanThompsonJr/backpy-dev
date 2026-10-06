@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "You type `pokeapi.co` and press Enter. What happens first?",
+      "options": [
+        "The TLS handshake",
+        "The browser sends its request for the page",
+        "A DNS lookup turns the name into an IP address",
+        "The TCP handshake"
+      ],
+      "answer": 2,
+      "explanations": [
+        "TLS needs a connection to run on, and a connection needs an address. It comes third.",
+        "The request is the last step. The browser can't send anything until it knows where to send it.",
+        "Right. Computers find each other by IP address, so the name has to become an address before anything else can happen.",
+        "TCP needs to know which address to connect to. It comes second, after DNS."
+      ]
+    },
+    {
+      "q": "Predict the output:\n\n```python\nurl = \"https://pokeapi.co/api/v2/pokemon/eevee\"\nprint(url.split(\"/\")[2])\n```",
+      "options": [
+        "`https:`",
+        "`pokeapi.co`",
+        "`api`",
+        "An empty line"
+      ],
+      "answer": 1,
+      "explanations": [
+        "That's index `0`. Counting starts at zero.",
+        "Right. Splitting on `/` gives `['https:', '', 'pokeapi.co', 'api', ...]`. The empty string sits between the two slashes, so the host is at index `2`. It's the part DNS looks up.",
+        "`api` is at index `3`, after the host.",
+        "The empty string is at index `1`, between the two slashes of `://`."
+      ]
+    },
+    {
+      "q": "Two pieces of a response arrive in the wrong order, and one goes missing. What makes sure your code still gets all of it, in order?",
+      "options": [
+        "DNS",
+        "TCP",
+        "TLS",
+        "Your code has to check for that itself"
+      ],
+      "answer": 1,
+      "explanations": [
+        "DNS only turns the name into an address. It's finished before any data moves.",
+        "Right. TCP numbers the data, re-sends what's missing and puts it back in order, so your code never sees the mess.",
+        "TLS keeps the data private and proves who the server is. Putting it back in order is TCP's job.",
+        "TCP handles it before your code ever sees the data."
+      ]
+    },
+    {
+      "q": "What does TLS give you?",
+      "options": [
+        "An IP address for a name",
+        "A reliable, ordered conversation",
+        "Privacy, plus proof of who the server is",
+        "A faster connection"
+      ],
+      "answer": 2,
+      "explanations": [
+        "Turning a name into an address is DNS.",
+        "Reliable, ordered delivery is TCP's job.",
+        "Right. TLS encrypts the conversation, and the certificate proves the server is who it says it is.",
+        "TLS adds a handshake, so it doesn't make things faster. (HTTP/3 speeds up the setup by doing the connection and TLS together.)"
+      ]
+    },
+    {
+      "q": "A login page loads over plain `http://`. It works fine. What's the problem?",
+      "options": [
+        "There isn't one, as long as the page loads",
+        "The page will load more slowly",
+        "DNS can't find `http://` addresses",
+        "Nothing is encrypted, so someone on the same network may be able to see the password"
+      ],
+      "answer": 3,
+      "explanations": [
+        "Working isn't the same as being safe. That's exactly what makes plain HTTP dangerous.",
+        "Speed isn't the issue. Privacy is.",
+        "DNS looks up the name, not the scheme. It works the same for `http://` and `https://`.",
+        "Right. Without TLS, the password travels as plain text. On a shared network like café Wi-Fi, someone may be able to see it, or even change what you send."
+      ]
+    }
+  ]
+}

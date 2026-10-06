@@ -33,36 +33,47 @@ backpy uses AI to explain, never to do the exercise for him.
 - Every lesson answers: what is it, why does it exist, when would I use it on the job,
   what goes wrong.
 - Short sections. No filler, no motivational padding.
+- Condensed, but never at the cost of understanding. Cut repetition and restatement, not
+  ideas or examples. If cutting something would leave Sean understanding the topic less,
+  keep it: actually learning beats a short lesson.
 - Readable at a glance: short sentences, one idea each, plain words. Prefer a numbered list
   or a small example over a long paragraph. If a sentence needs rereading, split it.
+- Word level grows with the course. Early lessons use everyday words and explain every
+  technical term in plain words the first time. Once a term has been taught and used, later
+  lessons use it freely, and the writing gets more technical as Sean does.
+- No long stretch without interaction. A lesson that covers several main ideas gets a short
+  Check yourself after each one, not just at the end (LESSON_FORMAT.md).
 - Modern practice only (2026). Library and version rules live in content/_registry/conventions.json.
 - Stay on topic. Every code block and exercise serves this lesson's concept. Use SQL only in
   lessons where SQL is the subject or genuinely part of the concept (e.g. a data-layer lesson),
   never as a side preview in a Python lesson. The same goes for any other tool or language.
 
 ## Make it memorable
-Every concept is tied to an everyday situation Sean can replay in his head, and the same
-situations come back lesson after lesson, so new ideas hang on pictures he already has.
-- **The anchor: a restaurant.** Sean thinks of the request–response cycle this way, so every
-  web, API, server and database lesson builds on it:
+Every concept is tied to an everyday situation Sean can replay in his head.
+- **Only situations nearly everyone has lived through** qualify: ordering food, a phone's
+  contact list, waiting in line, a coat check, mailing a package, a library. If many people
+  have never experienced it, don't use it. Prefer everyday life over computer-science metaphors.
+- **Pick the best picture for each concept.** Don't force one analogy onto everything.
+- **Orientation (lessons 1–4) uses ordering at a restaurant** for the request–response cycle.
+  It came from Sean as an example of how he already thinks about it. Later lessons may come
+  back to it when it genuinely fits, but they don't have to, and they shouldn't strain to.
+  What it established:
   | Restaurant | Backend |
   |---|---|
-  | Customer | Client (browser, app, another service) |
+  | Customer | Client (whatever sends the request) |
   | Server (the waiter) | The backend server: takes the order, checks it, carries it to the kitchen, brings the plate back |
   | Kitchen | Database: where the food is stored and prepared; customers never walk in |
   | Menu | The API: the things you're allowed to order, and how to ask |
   | Order ticket | The request (what you want and the details) |
   | The plate brought back | The response |
-  | "We're out of that" / "That's not on the menu" | 404 / 400 or 422 |
-  Extend it naturally: a reservation list for authentication, a ticket rail for a queue,
-  a prep station for a cache. Keep each piece meaning the same thing in every lesson.
-- **Other concepts get one common, relatable situation too** (a phone's contact list for a
-  dict, a queue at a coffee shop for a queue). Prefer situations from everyday life over
-  computer-science metaphors.
+  | "We're out of that" / "Your order's filled in wrong" | 404 / 400 or 422 |
+  When a later lesson does reuse it, each piece keeps the meaning above.
+- **Analogies are for thinking, not for answering.** Explain-back questions, checkpoints and
+  quizzes never ask Sean to use an analogy. He explains in his own words, his own way.
 - **Say where the analogy stops working**, in one sentence, so it never misleads (e.g. a real
   server handles thousands of customers at once).
-- **Reuse before inventing.** If concepts.json already gives a concept an analogy, use that
-  one. Record the analogy for every new concept in concepts.json.
+- **One concept, one picture.** If concepts.json already gives a concept an analogy, reuse it
+  for that concept. Record the analogy for every new concept in concepts.json.
 
 ## Exercises
 - **Bug hunts wherever possible.** If the concept has a common mistake, at least one exercise
@@ -77,6 +88,11 @@ situations come back lesson after lesson, so new ideas hang on pictures he alrea
   matches the tests one to one.
 - **Never hide an expected output.** If something should happen when a value is False (or
   empty, or missing), the example shows that output too, not just the True case.
+- **The Example never answers the exercise.** It shows what every kind of output looks like,
+  so Sean knows the format. But when the answer itself is a value (which side, which order,
+  which status), demonstrate each kind of output with inputs the task isn't about. Write
+  Done when as the behaviour ("jobs that protect players run on the backend"), not the answer
+  for each input.
 
 ## Five questions (reuse them everywhere)
 When a lesson discusses failure modes, frame them with these:

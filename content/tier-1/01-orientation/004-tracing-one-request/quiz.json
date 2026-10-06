@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Which hop comes right before the database query?",
+      "options": [
+        "The TLS handshake",
+        "The server checks the request",
+        "The DNS lookup",
+        "The response travels back"
+      ],
+      "answer": 1,
+      "explanations": [
+        "TLS is set up earlier, before the request is even sent. Two hops sit between it and the query.",
+        "Right. The server reads and checks the order first. Only an order it accepts reaches the database.",
+        "DNS is the very first network hop, long before the server sees anything.",
+        "The response comes after the query: the server needs the rows before it can answer."
+      ]
+    },
+    {
+      "q": "Predict the output:\n\n```python\ntimings = {\"TCP\": 20, \"TLS\": 20, \"database\": 45}\nprint(sum(timings.values()))\n```",
+      "options": [
+        "`3`",
+        "`45`",
+        "`85`",
+        "A `TypeError`"
+      ],
+      "answer": 2,
+      "explanations": [
+        "`3` is how many hops there are, which is `len(timings)`. `sum` adds the values.",
+        "`45` is the slowest hop, not the total.",
+        "Right. `20 + 20 + 45` is `85`. Latency is the total of every hop.",
+        "`timings.values()` gives numbers, and `sum` adds numbers, so nothing is the wrong type."
+      ]
+    },
+    {
+      "q": "You click **Save** on a new team. Which HTTP method does the request most likely use?",
+      "options": [
+        "`GET`",
+        "`POST`",
+        "`DELETE`",
+        "`HEAD`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "`GET` reads something. Saving a new team creates something.",
+        "Right. `POST` creates something new, like a team.",
+        "`DELETE` removes something. Nothing is being removed.",
+        "`HEAD` asks for headers only, without a body. It doesn't create anything."
+      ]
+    },
+    {
+      "q": "Who writes the SQL query for \"show my teams\"?",
+      "options": [
+        "The browser",
+        "The server",
+        "The database",
+        "The DNS resolver"
+      ],
+      "answer": 1,
+      "explanations": [
+        "The browser only sends `GET /teams`. It never talks to the database, so it never writes SQL.",
+        "Right. The server checks the request, then writes the query and sends it to the database.",
+        "The database runs the query and sends back rows. Someone else writes it.",
+        "The DNS resolver only turns names into addresses. It's done long before the query."
+      ]
+    },
+    {
+      "q": "**My teams** takes three seconds to load. In the Network tab, almost all of that time is spent waiting for the server's response. Where do you look first?",
+      "options": [
+        "DNS",
+        "The TLS certificate",
+        "The user's Wi-Fi",
+        "The server and its database query"
+      ],
+      "answer": 3,
+      "explanations": [
+        "DNS happens before the request is even sent. The time is going after the server has the request.",
+        "TLS is set up before the request is sent. A certificate problem shows a warning, not a slow page.",
+        "A slow network would slow every hop. Here the wait is on the server's side.",
+        "Right. Waiting for the response means the server is busy. The database query is the usual suspect."
+      ]
+    }
+  ]
+}

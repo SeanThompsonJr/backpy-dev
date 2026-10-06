@@ -1,0 +1,8 @@
+{
+  "type": "bug_hunt",
+  "title": "The debugging guide is out of order",
+  "runtime": "pyodide",
+  "packages": [],
+  "timeout_seconds": 5,
+  "bug_description": "Two pairs of hops were swapped. TLS runs on top of a TCP connection, so the connection has to exist first. And the server checks every request before the database sees it: never trust the client, and the kitchen only cooks orders the server has accepted."
+}

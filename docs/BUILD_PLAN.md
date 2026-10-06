@@ -14,6 +14,8 @@ Each milestone ends with something visible in the browser and a test that proves
    and listed in a "verify this" note. Responsive: stacked on narrow screens. On wide screens
    the editor side can be hidden to a slim rail (Show editor, Run, Submit, last result) so the
    lesson gets the full width while Sean codes in VS Code; the choice is remembered.
+   Each Check yourself question jumps to the part of the lesson its answer is in (added
+   during milestone 11 at Sean's request); long lessons have checks partway through.
 4. **Python runtime**: Pyodide in a Web Worker. Run button (and Ctrl+Enter / Cmd+Enter in the
    editor), stdout/stderr output, timeout that kills a runaway loop, reset-to-starter button.
 5. **Exercise grading + learning loop**: hidden tests run in the worker. A failed test shows

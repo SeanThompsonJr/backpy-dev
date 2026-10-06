@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "We're out of that", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "The handler returned 200 for every name, even when POKEDEX had nothing for it, so a typo came back as \"success\" with an empty body. Checking for a missing Pokémon and returning 404 with an error tells the client exactly what happened." }

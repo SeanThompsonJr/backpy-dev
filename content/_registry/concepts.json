@@ -1,1 +1,200 @@
-{ "concepts": [] }
+{
+  "concepts": [
+    {
+      "id": "python-function",
+      "name": "Python function",
+      "definition": "A named block of code defined with def that takes inputs and can return a value. Prerequisite: lesson 13 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-dict",
+      "name": "Python dict",
+      "definition": "A collection of key-value pairs; you look a value up by its key. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0,
+      "analogy": "A phone's contact list: look up a name, get the number."
+    },
+    {
+      "id": "python-list",
+      "name": "Python list",
+      "definition": "An ordered collection of values you can index, loop over and change. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-tuple",
+      "name": "Python tuple",
+      "definition": "A fixed, ordered group of values, often used to return two things at once. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-if",
+      "name": "Python if statement",
+      "definition": "Runs a block of code only when a condition is true, with elif and else for other cases. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-string-methods",
+      "name": "Python string methods",
+      "definition": "Built-in methods on text, such as startswith, lower and split. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-for-loop",
+      "name": "Python for loop",
+      "definition": "Runs a block once for each item in a list, dict or other collection. Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-f-string",
+      "name": "Python f-string",
+      "definition": "A string with f before the quotes that fills in {expressions}, like f\"Saved {name}\". Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "backend",
+      "name": "Backend",
+      "definition": "The part of an app that runs on computers the company controls: it takes requests, checks them, stores and fetches data, and sends back answers.",
+      "introduced_in": 1,
+      "analogy": "The restaurant's staff: the server (the waiter) who takes and checks your order, and the kitchen behind the swinging doors."
+    },
+    {
+      "id": "frontend",
+      "name": "Frontend",
+      "definition": "The part of an app the user sees and touches: pages, buttons and layout, running on the user's own device.",
+      "introduced_in": 1,
+      "analogy": "The dining room: the tables, the decor, everything the customer sees."
+    },
+    {
+      "id": "never-trust-the-client",
+      "name": "Never trust the client",
+      "definition": "The client is whatever sends the request; for users, that's a device they control, so they can change or skip anything there. The backend checks every request itself.",
+      "introduced_in": 1,
+      "analogy": "A customer can ask for anything; the server still checks the order before the kitchen cooks."
+    },
+    {
+      "id": "ip-address",
+      "name": "IP address",
+      "definition": "The number computers use to find each other on a network: four numbers for IPv4, a longer form with colons for IPv6.",
+      "introduced_in": 2,
+      "analogy": "The restaurant's street address."
+    },
+    {
+      "id": "dns",
+      "name": "DNS",
+      "definition": "The Domain Name System: turns a name like pokeapi.co into an IP address. A resolver finds the answer, and the resolver, computer and browser each cache it for a while.",
+      "introduced_in": 2,
+      "analogy": "Looking up a restaurant's street address when you only know its name."
+    },
+    {
+      "id": "tcp",
+      "name": "TCP",
+      "definition": "Runs on top of IP and gives a reliable, ordered conversation: it numbers the data, re-sends what's missing and puts it back in order. Starts with a three-step handshake.",
+      "introduced_in": 2,
+      "analogy": "The greeting at the door: You: \"Table for one?\" Staff: \"Yes, we have one. Ready?\" You: \"Ready.\" Nobody takes your order before you're seated."
+    },
+    {
+      "id": "tls",
+      "name": "TLS",
+      "definition": "Makes a connection private (encrypted) and proves the server's identity with a certificate signed by a certificate authority the browser trusts. Others can still see which site you're visiting, but not what you send. A certificate proves the name, not that the site is honest.",
+      "introduced_in": 2,
+      "analogy": "A private booth so nobody overhears your order, plus the licence on the wall proving it's the real restaurant."
+    },
+    {
+      "id": "https",
+      "name": "HTTPS",
+      "definition": "HTTP sent through TLS: private, and the server has proved who it is. Plain http:// has neither.",
+      "introduced_in": 2,
+      "analogy": "Placing your order from the private booth of the licensed restaurant."
+    },
+    {
+      "id": "client",
+      "name": "Client",
+      "definition": "Anything that sends a request: a browser, a phone app, a script, or another server.",
+      "introduced_in": 3,
+      "analogy": "The customer."
+    },
+    {
+      "id": "server",
+      "name": "Server",
+      "definition": "A program that waits for requests and answers each one: it checks the order, gets what it needs from the database, and sends a response. Also the computer it runs on.",
+      "introduced_in": 3,
+      "analogy": "The server (the waiter): takes the order, checks it, carries it to the kitchen, brings the plate back."
+    },
+    {
+      "id": "database",
+      "name": "Database",
+      "definition": "Where data is stored so it survives restarts and can be searched. Only the server talks to it.",
+      "introduced_in": 3,
+      "analogy": "The kitchen: where the food is stored and prepared; customers never walk in."
+    },
+    {
+      "id": "api",
+      "name": "API",
+      "definition": "The list of requests a server accepts and how to make them; on a web API, each item is a method and a path.",
+      "introduced_in": 3,
+      "analogy": "The menu: what you're allowed to order, and how to ask."
+    },
+    {
+      "id": "cache",
+      "name": "Cache",
+      "definition": "Saved copies of recent answers, kept so they can be handed out again without redoing the work (e.g. asking the database).",
+      "introduced_in": 3,
+      "analogy": "Food made ahead and kept warm under a heat lamp, ready before anyone orders it."
+    },
+    {
+      "id": "http-request",
+      "name": "HTTP request",
+      "definition": "A message a client sends to a server: a method, a path, headers, and sometimes a body.",
+      "introduced_in": 3,
+      "analogy": "The order ticket the customer hands the server."
+    },
+    {
+      "id": "http-response",
+      "name": "HTTP response",
+      "definition": "The server's answer: a status code, headers, and usually a body.",
+      "introduced_in": 3,
+      "analogy": "The plate brought back to the table."
+    },
+    {
+      "id": "status-code",
+      "name": "Status code",
+      "definition": "A three-digit number saying how a request went: 2xx went well, 4xx is the client's mistake, 5xx is the server's.",
+      "introduced_in": 3,
+      "analogy": "\"Here you go\" (200), \"We're out of that\" (404), \"The order was filled in wrong\" (400/422), \"Something went wrong on the restaurant's side\" (500)."
+    },
+    {
+      "id": "json",
+      "name": "JSON",
+      "definition": "A text format for data that any language can read and write; it looks like a Python dict but is a string until parsed.",
+      "introduced_in": 3,
+      "analogy": "A standard order form any restaurant can read."
+    },
+    {
+      "id": "http-method",
+      "name": "HTTP method",
+      "definition": "The part of a request saying what kind of action it is: GET reads, POST creates; PUT, PATCH and DELETE change or remove.",
+      "introduced_in": 4,
+      "analogy": "\"Can I see the specials?\" is a GET (just looking); \"I'd like the pasta\" is a POST (it creates an order)."
+    },
+    {
+      "id": "latency",
+      "name": "Latency",
+      "definition": "The time from starting a request (the click) until the response arrives; every hop adds some.",
+      "introduced_in": 4,
+      "analogy": "The clock starts when you walk in and stops when the plate lands on your table."
+    },
+    {
+      "id": "sql-query",
+      "name": "SQL query",
+      "definition": "A request written in SQL, the database's own language. The server writes it, the database runs it, and rows come back.",
+      "introduced_in": 4,
+      "analogy": "The server's note to the kitchen, in the kitchen's own shorthand."
+    },
+    {
+      "id": "request-journey",
+      "name": "Request journey",
+      "definition": "The hops one request takes: DNS lookup, TCP connection, TLS handshake, HTTP request, the server's checks, the database query, and the response back.",
+      "introduced_in": 4,
+      "analogy": "The whole visit: look up the address, get greeted at the door, sit in the private booth, order, the server checks the ticket, the kitchen cooks, the plate comes back."
+    }
+  ]
+}

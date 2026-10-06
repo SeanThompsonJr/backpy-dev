@@ -56,6 +56,33 @@ unverified_claims: []              # filled by the reviewer if a claim couldn't 
 ## What breaks
 ## Check yourself
 ```
+Sections can have `###` subheadings. Use them in long sections so each main idea has its own
+heading (and its own jump target, below).
+
+`explain_back` asks for the idea in Sean's own words. It never asks him to use an analogy.
+
+### Check yourself
+Every Check yourself question is a link to the heading its answer sits under. On the site,
+clicking it scrolls the lesson to that heading; the validator fails a question that isn't a
+link, or that points at a heading that doesn't exist or comes after the question.
+```markdown
+## Check yourself
+
+- [What does DNS give back when you ask about `pokeapi.co`?](#dns-find-the-address)
+- [Why must the server, not the client, talk to the database?](#the-concept)
+```
+- The link target is the heading's slug: its text in lowercase, punctuation and accents
+  dropped, spaces turned into hyphens. `### 2. TCP: open a reliable conversation` becomes
+  `#2-tcp-open-a-reliable-conversation`. A repeated heading gets `-2`, `-3` (the second
+  "Check yourself" is `#check-yourself-2`). shared/anchors.ts holds the rules.
+- Link to the closest heading above the answer: a `###` subheading beats its whole `##`
+  section.
+- **Checks partway through.** A lesson with several main ideas gets a `### Check yourself`
+  after each one (usually at the end of a `###` part of The concept), with one to three
+  questions about what was just taught. The final `## Check yourself` stays, and covers the
+  whole lesson.
+
+### Unverified claims
 `unverified_claims` lists each claim the reviewer couldn't confirm against an official source.
 Each entry quotes the claim exactly as it appears in the lesson text and says what to check:
 ```yaml
@@ -67,6 +94,8 @@ unverified_claims:
   (formatting like **bold** or `code` is ignored when matching). The site underlines it in
   place; the validator fails if it can't be found.
 - `check` names the official source and exactly what to confirm there.
+
+### Code blocks
 - Code that must run is fenced as ```python run (or ```sql run). The validator executes it.
 - Deliberately broken code is fenced as ```python broken <ExceptionName>, e.g.
   ```python broken TypeError. The validator checks that it raises exactly that exception, so a
@@ -139,6 +168,9 @@ print(team["members"])   # []
   should never have to guess an output that a test checks. Keep example lines short (about
   60 characters) so they're readable without scrolling.
 - Show behaviour, not implementation. Never the cause of a bug or the code of the fix.
+- Never the answer either. When the answer is a value (which side, which order, which status),
+  show each kind of output with inputs the task isn't about, and write Done when as the
+  behaviour ("jobs that protect players run on the backend"), not one answer per input.
 - Not a restatement of the lesson. About 150 words at most, not counting code.
 
 The parser rejects missing or out-of-order sections, and a Done when list whose bullet count

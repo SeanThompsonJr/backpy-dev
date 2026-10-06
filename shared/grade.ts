@@ -30,8 +30,24 @@ export interface Grade {
   output: string
 }
 
+// Python test names are lowercase, so acronyms and names are restored for the checklist.
+const ACRONYMS = new Set(['api', 'css', 'dns', 'ftp', 'html', 'http', 'https', 'id', 'ip', 'json', 'jwt', 'sql', 'tcp', 'tls', 'url', 'uuid'])
+const NAMES: Record<string, string> = {
+  fastapi: 'FastAPI',
+  pokeapi: 'PokeAPI',
+  pokemon: 'Pokémon',
+  poketeam: 'PokeTeam',
+  postgres: 'Postgres',
+  python: 'Python',
+}
+
 export function humanizeTestName(name: string): string {
-  const words = name.replace(/^test_?/, '').replace(/_+/g, ' ').trim()
+  const words = name
+    .replace(/^test_?/, '')
+    .split(/_+/)
+    .filter(Boolean)
+    .map((word) => NAMES[word.toLowerCase()] ?? (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word))
+    .join(' ')
   return words.charAt(0).toUpperCase() + words.slice(1)
 }
 

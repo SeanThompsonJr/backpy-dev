@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Two hops depend on something else being finished first: one needs a connection to protect, and one needs the server to have accepted the order. Find those two in the guide.",
+    "The likely mistake is thinking privacy comes first, or that the kitchen can start early. TLS needs a connection to run on, and the server checks every order before it reaches the database."
+  ],
+  "solution_explanation": "A request needs an address (DNS), then a connection (TCP), then privacy on top of that connection (TLS). Only then is the request sent. The server checks it before anything reaches the database, because the client can't be trusted, and the response comes back last."
+}

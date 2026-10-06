@@ -40,6 +40,28 @@ test.describe('desktop', () => {
     await expect(page.locator('.left-view-lesson .code-block[data-mode="run"]')).toHaveCount(4)
   })
 
+  test('a Check yourself question jumps to the part of the lesson with its answer', async ({ page }) => {
+    await openFixture(page)
+    const question = leftSide(page).getByRole('button', { name: /Why is None a good marker/ })
+    await expect(question).toContainText('Answer in: Worked example')
+    await question.click()
+    const answer = page.locator('#lesson-worked-example')
+    await expect(answer).toBeFocused()
+    await expect(answer).toBeInViewport()
+    await expect(answer).toHaveClass(/jump-landed/)
+    // The router owns the URL, and only the lesson pane scrolls.
+    await expect(page).toHaveURL(/#\/lesson\/fixture$/)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+    // A check partway through the lesson, used from the keyboard.
+    const midway = page.locator('.check-block')
+    await expect(midway.getByRole('heading', { level: 3, name: 'Check yourself' })).toBeVisible()
+    await midway.getByRole('button', { name: /When does Python create/ }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('#lesson-python-defaults')).toBeFocused()
+    await expect(page.locator('#lesson-python-defaults')).toBeInViewport()
+  })
+
   test('verify-this names the exact statement, says what to check, and shows it in the text', async ({ page }) => {
     await openFixture(page)
     const note = page.getByRole('complementary', { name: 'Claims to verify' })

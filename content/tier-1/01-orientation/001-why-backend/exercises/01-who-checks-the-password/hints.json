@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Go through the jobs one at a time and ask: if a player changed or skipped this code, who would get hurt? If the answer is \"someone else\" or \"the saved data\", the job can't live in the browser.",
+    "The likely mistake is thinking a check is safe because the page does it, or because a button is hidden. A player can edit the page, or send a request without using the page at all."
+  ],
+  "solution_explanation": "The password check and the rule against deleting other players' teams both protect someone, so they run on the backend, where the player can't change or skip the code. Hiding the Delete button is still worth doing so the page looks right, but it's only for looks: the backend makes the real decision."
+}

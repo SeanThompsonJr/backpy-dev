@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Think about the restaurant. When the kitchen is out of a dish, does the server bring an empty plate and say \"Here you go\"? What should the status code tell the client?",
+    "The likely mistake is treating \"no data\" as a fine answer. A 200 tells the client everything worked, so it shows an empty page. A missing Pokémon needs a status that means \"not found\", and a body that says what wasn't found."
+  ],
+  "solution_explanation": "The handler now checks whether POKEDEX had anything for the name. If not, it returns 404 with an error that names the missing Pokémon, so the client knows nothing was found and can tell the player why. Pokémon that exist still get 200 and their data."
+}

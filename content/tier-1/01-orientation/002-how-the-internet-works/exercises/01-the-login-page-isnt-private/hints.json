@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Write `http://` and `https://` one above the other and find the first character where they differ. To tell them apart, the check has to look at least that far.",
+    "The likely mistake is treating \"starts with http\" as \"is HTTPS\". A plain http:// address starts with those same letters, so the check can't tell the two apart."
+  ],
+  "solution_explanation": "Only the `https://` scheme means the connection is protected by TLS. Checking for the full `https://` prefix rejects plain `http://` addresses, which slipped through when the check looked for \"http\" alone."
+}

@@ -213,6 +213,96 @@ mark.claim:focus {
   font-size: 1rem;
 }
 
+/* ---------- Check yourself: each question jumps to the part with its answer ---------- */
+
+.prose h2,
+.prose h3 {
+  scroll-margin-top: 72px; /* clears the sticky Lesson / Exercise switch */
+}
+.prose h2:focus,
+.prose h3:focus {
+  outline: none;
+}
+.prose .jump-landed {
+  border-radius: var(--radius-s);
+  animation: jump-landed 1.6s var(--ease-out);
+}
+@keyframes jump-landed {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--py-yellow) 22%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--py-yellow) 22%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prose .jump-landed {
+    animation: none;
+    background: color-mix(in srgb, var(--py-yellow) 16%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--py-yellow) 16%, transparent);
+  }
+}
+
+.prose .check-list {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: 0;
+  list-style: none;
+}
+.prose .check-list li + li {
+  margin-top: 0;
+}
+.check-jump {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 2px solid var(--rule);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  background: none;
+  font-family: var(--font-read);
+  font-size: 1.0625rem;
+  text-align: left;
+  transition:
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
+}
+.check-jump:hover {
+  border-left-color: var(--py-blue);
+  background: var(--panel);
+}
+.check-question {
+  line-height: 1.5;
+}
+.check-where {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--py-blue);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  line-height: 1.4;
+}
+
+/* A check partway through a long lesson: a pause before the next idea */
+.prose .check-block {
+  margin: var(--space-6) 0;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+}
+.prose .check-block h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--step-1);
+}
+.prose .check-block .check-list {
+  margin-bottom: 0;
+}
+
 /* ---------- Code blocks in lessons ---------- */
 
 .code-block {

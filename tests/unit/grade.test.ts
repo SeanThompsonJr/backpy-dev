@@ -56,6 +56,13 @@ describe('grading a submit', () => {
     expect(humanizeTestName('test_new_teams_get_their_own_roster')).toBe('New teams get their own roster')
     expect(humanizeTestName('test__double__underscores')).toBe('Double underscores')
   })
+
+  it('test names keep acronyms and names readable', () => {
+    expect(humanizeTestName('test_tcp_comes_before_tls')).toBe('TCP comes before TLS')
+    expect(humanizeTestName('test_an_https_address_is_secure')).toBe('An HTTPS address is secure')
+    expect(humanizeTestName('test_the_404_body_names_the_missing_pokemon')).toBe('The 404 body names the missing Pokémon')
+    expect(humanizeTestName('test_identity_is_not_an_id')).toBe('Identity is not an ID')
+  })
 })
 
 describe('the learning loop', () => {

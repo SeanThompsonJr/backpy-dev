@@ -2,6 +2,7 @@
 // Errors are collected (never thrown) so the validator can report every problem at once.
 import { parse as parseYaml } from 'yaml'
 import type { z } from 'zod'
+import { checkYourselfIssues } from './anchors'
 import { locateQuote, proseBlocks } from './claims'
 import {
   EXERCISE_FILES,
@@ -208,6 +209,7 @@ export function parseLessonFolder(folder: string, files: Record<string, string>)
       message: `sections must be exactly: ${LESSON_SECTIONS.map((s) => `"## ${s}"`).join(', ')}. Found: ${titles.map((t) => `"## ${t}"`).join(', ') || 'none'}`,
     })
   }
+  issues.push(...checkYourselfIssues(split.body, split.bodyLine).map((message) => ({ file: at('lesson.md'), message })))
 
   const claims: UnverifiedClaim[] = []
   if (fm.success && fm.data.unverified_claims.length) {
