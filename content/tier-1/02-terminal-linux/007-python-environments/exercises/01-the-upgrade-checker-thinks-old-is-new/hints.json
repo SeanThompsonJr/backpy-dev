@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Compare \"2.10.0\" and \"2.9.3\" the way Python compares two strings: one character at a time, left to right, stopping at the first difference. Which characters decide it, and is that what a version number means?",
+    "The likely mistake is comparing versions as text. Each part between the dots is a number of its own, and the parts count from left to right: major first, then minor, then patch."
+  ],
+  "solution_explanation": "Split each version on the dots and turn every part into an int, so \"2.10.0\" becomes [2, 10, 0]. Python compares two lists item by item from the left, which is exactly the major, then minor, then patch order semantic versioning uses, and 10 is bigger than 9 as a number."
+}

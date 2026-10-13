@@ -50,6 +50,18 @@
       "introduced_in": 0
     },
     {
+      "id": "python-import",
+      "name": "Python import",
+      "definition": "Brings in a module so its code can be used, like import os or import json. Prerequisite: lesson 18 reviews it.",
+      "introduced_in": 0
+    },
+    {
+      "id": "python-types",
+      "name": "Python core types",
+      "definition": "int, float, str and bool, and converting between them with int(), str() and bool(). Prerequisite: lesson 12 reviews it.",
+      "introduced_in": 0
+    },
+    {
       "id": "backend",
       "name": "Backend",
       "definition": "The part of an app that runs on computers the company controls: it takes requests, checks them, stores and fetches data, and sends back answers.",
@@ -195,6 +207,158 @@
       "definition": "The hops one request takes: DNS lookup, TCP connection, TLS handshake, HTTP request, the server's checks, the database query, and the response back.",
       "introduced_in": 4,
       "analogy": "The whole visit: look up the address, get greeted at the door, sit in the private booth, order, the server checks the ticket, the kitchen cooks, the plate comes back."
+    },
+    {
+      "id": "shell",
+      "name": "Shell",
+      "definition": "The program inside a terminal that reads your commands and runs them. Ubuntu's is bash.",
+      "introduced_in": 5
+    },
+    {
+      "id": "command-options",
+      "name": "Command, options and arguments",
+      "definition": "A command line is the command (what to do), options or flags starting with - (how to do it), and arguments (what to do it to), e.g. ls -l poketeam.",
+      "introduced_in": 5
+    },
+    {
+      "id": "working-directory",
+      "name": "Working directory",
+      "definition": "The folder the shell is in right now; pwd shows it and cd changes it. Relative paths start from here.",
+      "introduced_in": 5,
+      "analogy": "The \"You are here\" dot on a mall map."
+    },
+    {
+      "id": "absolute-path",
+      "name": "Absolute path",
+      "definition": "A path starting with /, the top of the file system, so it means the same place wherever you are.",
+      "introduced_in": 5,
+      "analogy": "Directions from the mall's main entrance: they work wherever you are."
+    },
+    {
+      "id": "relative-path",
+      "name": "Relative path",
+      "definition": "A path that starts from the working directory; . is the current folder and .. the one above.",
+      "introduced_in": 5,
+      "analogy": "Directions from the \"You are here\" dot; .. is \"back out to the corridor\"."
+    },
+    {
+      "id": "hidden-file",
+      "name": "Hidden file",
+      "definition": "A file whose name starts with a dot, like .env; plain ls leaves it out and ls -a shows it.",
+      "introduced_in": 5
+    },
+    {
+      "id": "file-permissions",
+      "name": "File permissions",
+      "definition": "Read, write and execute rights for a file's owner, its group and everyone else, shown by ls -l and changed with chmod.",
+      "introduced_in": 5,
+      "analogy": "House keys: the owner, the household (group) and visitors (everyone else) can each look, change things, or go in and run things."
+    },
+    {
+      "id": "sudo",
+      "name": "sudo",
+      "definition": "Runs one command as the superuser (root), who can do anything to any file. Needed to install software, not for your own files.",
+      "introduced_in": 5,
+      "analogy": "The building manager's master key."
+    },
+    {
+      "id": "process",
+      "name": "Process",
+      "definition": "A program while it runs, with its own PID. Stopped with Ctrl+C or kill.",
+      "introduced_in": 6,
+      "analogy": "A recipe (the program) and the meal being cooked (the process)."
+    },
+    {
+      "id": "port",
+      "name": "Port",
+      "definition": "A number from 0 to 65535 that picks which program on a computer gets a connection. Only one program can listen on a port at a time.",
+      "introduced_in": 6,
+      "analogy": "The apartment number; the IP address is the building's street address."
+    },
+    {
+      "id": "localhost",
+      "name": "localhost",
+      "definition": "The address 127.0.0.1: this computer. Requests to it never leave the machine.",
+      "introduced_in": 6
+    },
+    {
+      "id": "environment-variable",
+      "name": "Environment variable",
+      "definition": "A named value a process gets a copy of when it starts; only exported ones reach programs. Used for settings and secrets. Always a string.",
+      "introduced_in": 6,
+      "analogy": "Sticky notes on the fridge that anything started from this terminal can read (the ones put up with export)."
+    },
+    {
+      "id": "path-variable",
+      "name": "PATH",
+      "definition": "The list of folders the shell searches, in order, for a command; \"command not found\" means none has it.",
+      "introduced_in": 6,
+      "analogy": "The drawers you check, in order, when you're looking for the scissors."
+    },
+    {
+      "id": "standard-streams",
+      "name": "Standard streams",
+      "definition": "stdin (input), stdout (normal output) and stderr (errors and messages), which every process has.",
+      "introduced_in": 6
+    },
+    {
+      "id": "redirection",
+      "name": "Redirection",
+      "definition": "Sending a stream to a file instead of the screen: > replaces, >> appends, 2> sends stderr, 2>&1 sends both.",
+      "introduced_in": 6
+    },
+    {
+      "id": "pipe",
+      "name": "Pipe",
+      "definition": "| sends one command's stdout into the next command's stdin, so small tools chain together.",
+      "introduced_in": 6,
+      "analogy": "A car wash: each station does one job and passes the car on."
+    },
+    {
+      "id": "virtual-environment",
+      "name": "Virtual environment",
+      "definition": "A per-project folder (.venv) with the project's own packages and a link to its Python. Never committed.",
+      "introduced_in": 7,
+      "analogy": "Each project's own pantry, so two recipes never fight over ingredients."
+    },
+    {
+      "id": "package-manager",
+      "name": "Package manager",
+      "definition": "A tool that downloads and installs packages from PyPI, like pip or uv.",
+      "introduced_in": 7
+    },
+    {
+      "id": "dependency",
+      "name": "Dependency",
+      "definition": "A package a project needs. Dependencies have dependencies of their own.",
+      "introduced_in": 7
+    },
+    {
+      "id": "pyproject-toml",
+      "name": "pyproject.toml",
+      "definition": "The file that describes a Python project: name, version, required Python, and dependency rules like httpx>=0.28.1.",
+      "introduced_in": 7,
+      "analogy": "A recipe's ingredient list (\"flour, at least 500 g\")."
+    },
+    {
+      "id": "lock-file",
+      "name": "Lock file",
+      "definition": "uv.lock: the exact version and hash of every package, dependencies of dependencies included. Written by uv, committed, never edited by hand.",
+      "introduced_in": 7,
+      "analogy": "The receipt: the exact brand and size bought, so the next cook buys exactly the same."
+    },
+    {
+      "id": "semantic-versioning",
+      "name": "Semantic versioning",
+      "definition": "MAJOR.MINOR.PATCH version numbers: major can break things, minor adds features, patch fixes bugs. Not every package follows it (0.x, dates).",
+      "introduced_in": 7,
+      "analogy": "Phone software updates: 18 to 19 is a big update, 18.1 adds features, 18.1.1 only fixes bugs."
+    },
+    {
+      "id": "uv",
+      "name": "uv",
+      "definition": "The tool backpy uses to manage Python versions, projects, environments and packages (init, add, run, sync).",
+      "introduced_in": 7
     }
   ]
 }

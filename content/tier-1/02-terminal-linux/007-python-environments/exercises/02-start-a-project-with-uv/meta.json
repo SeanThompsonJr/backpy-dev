@@ -1,0 +1,8 @@
+{ "type": "local", "title": "Start a project with uv", "runtime": "local",
+  "checklist": [
+    "uv --version prints a version in a new tab",
+    "After uv add httpx, pyproject.toml lists httpx and uv.lock exists",
+    "uv run main.py printed Hello from uv-practice!",
+    "uv run pytest ran and said no tests ran",
+    "You can say which one gets committed, uv.lock or .venv, and why"
+  ] }

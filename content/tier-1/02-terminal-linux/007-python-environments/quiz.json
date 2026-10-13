@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Predict the output:\n\n```bash\nuv init --no-package --python 3.14 poketeam\ncat poketeam/.python-version\n```",
+      "options": [
+        "`3.14`",
+        "`>=3.14`",
+        "`poketeam`",
+        "Nothing: the file is empty"
+      ],
+      "answer": 0,
+      "explanations": [
+        "Right. `.python-version` holds the one Python version uv should use for this project.",
+        "`>=3.14` is the rule in `pyproject.toml` (`requires-python`). `.python-version` names a single version.",
+        "The project name goes in `pyproject.toml`, not in `.python-version`.",
+        "`uv init --python 3.14` writes `3.14` into it."
+      ]
+    },
+    {
+      "q": "`pyproject.toml` says `\"pydantic>=2.10,<3\"`. Which of these versions can uv install?",
+      "options": [
+        "`2.9.2`",
+        "`2.12.0`",
+        "`3.0.0`",
+        "Only exactly `2.10`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "`2.9.2` is older than `2.10`, so `>=2.10` rules it out.",
+        "Right. `2.12.0` is at least `2.10` and still below `3`, so it fits both parts of the rule.",
+        "`<3` rules out version 3, the major version that's allowed to break your code.",
+        "`>=` and `<` give a range. Exactly one version would be `==2.10`."
+      ]
+    },
+    {
+      "q": "Which of these should be committed to the project's repository?",
+      "options": [
+        "`.venv` and `uv.lock`",
+        "Only `.venv`",
+        "`pyproject.toml` and `uv.lock`, but not `.venv`",
+        "Nothing uv makes"
+      ],
+      "answer": 2,
+      "explanations": [
+        "`.venv` is big and only works on the machine that made it. `uv sync` rebuilds it from the lock file.",
+        "`.venv` is exactly the part that shouldn't be committed.",
+        "Right. The recipe and the receipt get committed, and every machine builds its own `.venv` from them.",
+        "Without `pyproject.toml` and `uv.lock`, a teammate can't rebuild the same environment."
+      ]
+    },
+    {
+      "q": "`pyproject.toml` lists `\"httpx>=0.28.1\"`. What does it allow?",
+      "options": [
+        "Exactly 0.28.1",
+        "0.28.1 or any newer version",
+        "Any version older than 0.28.1",
+        "Any version at all"
+      ],
+      "answer": 1,
+      "explanations": [
+        "Exactly 0.28.1 would be `==0.28.1`. The exact version you got is recorded in `uv.lock`.",
+        "Right. `>=` sets the lowest version allowed. The lock file records which one was actually installed.",
+        "`>=` is \"at least\", so older versions are ruled out.",
+        "There's a lower limit: nothing older than 0.28.1."
+      ]
+    },
+    {
+      "q": "`main.py` starts with `import httpx`. `python3 main.py` fails with `No module named 'httpx'`, but `uv run main.py` works. Why?",
+      "options": [
+        "httpx isn't installed anywhere",
+        "`python3` is Ubuntu's own Python, which doesn't have the project's packages",
+        "`main.py` has a typo",
+        "uv deletes httpx when you're not using it"
+      ],
+      "answer": 1,
+      "explanations": [
+        "It's installed, in the project's `.venv`. That's why `uv run` works.",
+        "Right. `uv run` uses the project's Python and packages. Plain `python3` uses the system's, which has none of them.",
+        "The same file works with `uv run`, so the code is fine.",
+        "The packages stay in `.venv` until you remove them."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "A path that starts with / starts from the top of the file system, not from where you are. Look at where full_path starts building every path, whatever the path begins with.",
+    "The likely mistake is thinking every path carries on from the working directory. A path that starts with / starts from the top of the file system, so the working directory shouldn't be part of the result at all."
+  ],
+  "solution_explanation": "A path that starts with / is absolute: it starts from the top of the file system, not from where you are. So full_path drops the working directory's folders before following it. Relative paths still start from the working directory, with .. going up one folder and . staying put."
+}

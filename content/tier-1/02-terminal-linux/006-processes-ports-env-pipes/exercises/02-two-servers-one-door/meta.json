@@ -1,0 +1,8 @@
+{ "type": "local", "title": "Two servers, one door", "runtime": "local",
+  "checklist": [
+    "The second server failed with \"Address already in use\"",
+    "You found the first server's PID with ss",
+    "After Ctrl+C, ss showed nothing on port 8000",
+    "Python printed dev in the first tab, and a KeyError in a fresh tab",
+    "demo.env had both lines, and a pipe counted the files in your home folder"
+  ] }

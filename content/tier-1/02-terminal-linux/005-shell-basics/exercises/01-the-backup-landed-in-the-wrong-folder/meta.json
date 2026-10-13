@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "The backup landed in the wrong folder", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "An absolute path starts with /, so it means the same place wherever you are. full_path still started from the working directory and added the absolute path onto the end, so /var/backups became /home/sean/poketeam/var/backups. The fix starts from the top of the file system whenever the path begins with /." }

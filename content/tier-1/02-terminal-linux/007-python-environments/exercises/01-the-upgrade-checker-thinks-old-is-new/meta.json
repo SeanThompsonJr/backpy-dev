@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "The upgrade checker thinks old is new", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "The versions were compared as text, and text is compared one character at a time. In \"2.10.0\" against \"2.9.3\", the first difference is \"1\" against \"9\", so 2.10.0 counted as older. Turning each part into a number and comparing the numbers left to right gets major, then minor, then patch right." }

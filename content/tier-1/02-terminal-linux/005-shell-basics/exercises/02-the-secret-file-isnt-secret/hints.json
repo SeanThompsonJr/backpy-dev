@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Split a mode like -rw-r----- into its parts: one character for the type, then three sets of three. Who does each set belong to, and which ones does the check actually read?",
+    "The likely mistake is thinking \"everyone else\" covers everybody but the owner. The group has its own set of three, between the owner's and everyone else's."
+  ],
+  "solution_explanation": "After the first character, ls -l shows three sets of three: the owner, the group, and everyone else. A private file has no permissions in the last two sets, so the check reads the six characters after the owner's and makes sure they're all dashes."
+}

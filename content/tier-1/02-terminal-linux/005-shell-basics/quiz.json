@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Predict the output (both folders exist):\n\n```bash\ncd /home/sean/poketeam\ncd ../backups\npwd\n```",
+      "options": [
+        "`/home/sean/poketeam/backups`",
+        "`/home/sean/backups`",
+        "`/backups`",
+        "`../backups`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "`..` goes up first, out of `poketeam`, so `backups` is found next to it, not inside it.",
+        "Right. `..` takes you from `/home/sean/poketeam` up to `/home/sean`, then into `backups`.",
+        "That would need an absolute path, `/backups`. A relative path starts from where you are.",
+        "`pwd` always prints the full, absolute path of where you are, never the relative path you typed."
+      ]
+    },
+    {
+      "q": "Which of these is an absolute path?",
+      "options": [
+        "`app/main.py`",
+        "`../backups`",
+        "`/var/log/poketeam.log`",
+        "`./deploy.sh`"
+      ],
+      "answer": 2,
+      "explanations": [
+        "It doesn't start with `/`, so it starts from your working directory.",
+        "`..` means \"the folder above where I am\", so this depends on where you are.",
+        "Right. It starts with `/`, the top of the file system, so it means the same place wherever you are.",
+        "`.` means \"the folder I'm in\", so this is relative too."
+      ]
+    },
+    {
+      "q": "`ls -l` shows `-rwxr-x---` for `deploy.sh`. Who can run it?",
+      "options": [
+        "Only the owner",
+        "The owner and the group",
+        "Everyone",
+        "Nobody, until it's given `chmod 600`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "The group's set is `r-x`, and that `x` lets the group run it too.",
+        "Right. The owner has `rwx` and the group has `r-x`, so both can run it. Everyone else has `---`.",
+        "Everyone else has `---`: no read, write or run.",
+        "`600` would take away the run permission (`rw-------`), not give it."
+      ]
+    },
+    {
+      "q": "You run `rm -r old_teams` by mistake. How do you get the folder back?",
+      "options": [
+        "From the recycle bin",
+        "Run `rm -r old_teams` again to undo it",
+        "You can't: `rm` deletes straight away, with no undo",
+        "With `sudo`"
+      ],
+      "answer": 2,
+      "explanations": [
+        "The terminal doesn't use the recycle bin. `rm` skips it.",
+        "Running it again does nothing: the folder is already gone.",
+        "Right. That's why you check `pwd` before deleting, and keep anything important in Git or a backup.",
+        "`sudo` gives more permissions; it can't bring back deleted files."
+      ]
+    },
+    {
+      "q": "A command fails with \"Permission denied\". What's the best first move?",
+      "options": [
+        "Run it again with `sudo`",
+        "`chmod 777` the file so it can't happen again",
+        "Check where you are and who owns the file (`pwd`, `ls -l`)",
+        "Restart the terminal"
+      ],
+      "answer": 2,
+      "explanations": [
+        "`sudo` hides the real problem, and can leave files owned by root that your programs can't use.",
+        "`777` gives everyone every permission. The error goes away, and the file becomes unsafe.",
+        "Right. Usually you're in the wrong folder or the file belongs to someone else. Find out which before changing anything.",
+        "Usually that changes nothing: permissions belong to the file, not the terminal window."
+      ]
+    }
+  ]
+}

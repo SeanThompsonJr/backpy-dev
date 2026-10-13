@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "Debug mode won't turn off", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "Environment variables are always strings. bool(\"false\") is True, because any non-empty string is True, so DEBUG=false switched debug mode on. And PORT=8080 stayed the text \"8080\". The fix compares DEBUG with \"true\" and turns PORT into a number with int()." }

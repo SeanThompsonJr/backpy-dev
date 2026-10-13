@@ -1,0 +1,2 @@
+{ "type": "bug_hunt", "title": "The secret file isn't secret", "runtime": "pyodide", "packages": [], "timeout_seconds": 5,
+  "bug_description": "The check only read the last three characters, the permissions for everyone else. It never read the group's three, so a file the group could read still counted as private. A private file has no permissions at all for the group or for everyone else." }

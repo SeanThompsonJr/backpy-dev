@@ -1,0 +1,12 @@
+{
+  "type": "local",
+  "title": "Set up PokeTeam's folders",
+  "runtime": "local",
+  "checklist": [
+    "ls showed app, but only ls -a showed .env",
+    "ls -l .env starts with -rw-------",
+    "After cd ../.., pwd printed your practice folder",
+    "Tab finished practice for you, and an absolute path listed the app folder from somewhere else",
+    "The practice folder is gone, and you can say why there's no getting it back"
+  ]
+}

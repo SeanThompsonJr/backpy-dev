@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Every value in env is a str, even \"false\" and \"8080\". Check what bool() gives for a non-empty string, and what you'd need to turn \"8080\" into the number 8080.",
+    "The likely mistake is reading bool(\"false\") as False. Python only looks at whether a string is empty, not at what it says. Decide what DEBUG should be by comparing the text itself."
+  ],
+  "solution_explanation": "Environment variables are strings, so they need converting on purpose. Debug mode is on only when DEBUG is the text \"true\", and int() turns PORT into a number. The defaults are strings too, so a missing value goes through the same conversion."
+}

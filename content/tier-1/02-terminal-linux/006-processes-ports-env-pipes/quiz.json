@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "q": "Predict the output:\n\n```python\nprint(bool(\"false\"))\n```",
+      "options": [
+        "`False`",
+        "`True`",
+        "A `ValueError`",
+        "`false`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "That's what it looks like it should say, and exactly the trap. `bool()` doesn't read the words.",
+        "Right. Any non-empty string is `True`, whatever it says. That's why `DEBUG=false` needs comparing as text, not passing to `bool()`.",
+        "`bool()` accepts any value, so nothing is raised.",
+        "`bool()` always gives back `True` or `False`, never the string itself."
+      ]
+    },
+    {
+      "q": "Predict the output:\n\n```bash\necho \"PORT=8000\" > settings.env\necho \"DEBUG=false\" > settings.env\ncat settings.env\n```",
+      "options": [
+        "`PORT=8000`",
+        "`DEBUG=false`",
+        "Both lines",
+        "Nothing: the file is empty"
+      ],
+      "answer": 1,
+      "explanations": [
+        "The second `>` replaced the whole file, so the first line is gone.",
+        "Right. `>` replaces what's in the file each time. To add a line, use `>>`.",
+        "That would need `>>` on the second line, which adds to the end instead of replacing.",
+        "The second `echo` wrote its line, so the file isn't empty."
+      ]
+    },
+    {
+      "q": "You start PokeTeam and get \"Address already in use\" for port 8000. What's going on?",
+      "options": [
+        "Your internet connection is down",
+        "Another process is already listening on port 8000",
+        "Port 8000 is reserved for HTTPS",
+        "PokeTeam's code has a syntax error"
+      ],
+      "answer": 1,
+      "explanations": [
+        "Ports on `localhost` don't need the internet at all.",
+        "Right. Only one program can listen on a port at a time. Often it's an old copy of your own server. `ss -ltnp` shows which one.",
+        "HTTPS normally uses 443. 8000 is a common development port.",
+        "A syntax error would stop Python before it tried to use the port at all."
+      ]
+    },
+    {
+      "q": "Predict the output, in a fresh Ubuntu tab:\n\n```bash\nPOKETEAM_MODE=dev\npython3 -c 'import os; print(os.environ.get(\"POKETEAM_MODE\", \"unset\"))'\n```",
+      "options": [
+        "`dev`",
+        "`unset`",
+        "`POKETEAM_MODE=dev`",
+        "A `KeyError`"
+      ],
+      "answer": 1,
+      "explanations": [
+        "That needs `export`. Without it, the variable stays in the shell and Python never gets a copy.",
+        "Right. `POKETEAM_MODE=dev` on its own line isn't exported, so Python's environment doesn't have it and `.get` falls back to `\"unset\"`.",
+        "`os.environ.get` gives back a value, never the name and value together.",
+        "`.get` with a default never raises a `KeyError`. Plain `os.environ[\"POKETEAM_MODE\"]` would."
+      ]
+    },
+    {
+      "q": "What does `grep ERROR app.log | wc -l` print?",
+      "options": [
+        "Every line of `app.log`",
+        "The lines of `app.log` that contain ERROR",
+        "How many lines of `app.log` contain ERROR",
+        "How many lines `app.log` has in total"
+      ],
+      "answer": 2,
+      "explanations": [
+        "`grep` keeps only the matching lines, and `wc -l` doesn't print lines at all.",
+        "That's what `grep ERROR app.log` alone prints. The pipe passes those lines on to `wc -l`.",
+        "Right. `grep` keeps the ERROR lines, and `wc -l` counts what it receives.",
+        "`wc -l` only counts what `grep` passed it, not the whole file."
+      ]
+    }
+  ]
+}
